@@ -67,9 +67,11 @@ function Page() {
                 href={project.siteUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-5 w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground text-[12.5px] font-semibold hover:opacity-90 transition-opacity"
+                className="mt-5 w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[12.5px] font-semibold hover:bg-emerald-500/20 transition-colors"
               >
-                <ExternalLink className="h-3.5 w-3.5" /> Ver sitio en vivo
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Sitio en vivo
+                <ExternalLink className="h-3.5 w-3.5 ml-1" />
               </a>
             )}
             <button className={`${project.siteUrl ? "mt-2" : "mt-5"} w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border bg-surface-elevated text-[12.5px] font-medium hover:bg-muted`}>
