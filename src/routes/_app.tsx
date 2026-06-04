@@ -12,7 +12,7 @@ function AppLayout() {
       <AppSidebar />
       <div className="flex-1 min-w-0 flex flex-col">
         <AppTopbar />
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-6 overflow-auto">
           <Outlet />
         </main>
       </div>

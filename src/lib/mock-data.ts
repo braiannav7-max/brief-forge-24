@@ -196,3 +196,27 @@ export const chat = [
   { who: "Cliente",     time: "10:28 AM", me: false, text: "Perfecto Braian, lo estamos revisando ahora. Te confirmo si necesitamos algo más." },
   { who: "Braian (Tú)", time: "10:30 AM", me: true,  text: "Genial, también agregué algunas referencias en la sección de identidad visual." },
 ];
+
+export type ActivityType = "briefing" | "file" | "comment" | "budget" | "idea";
+
+export const activities = [
+  { type: "briefing" as ActivityType, label: "Nuevo briefing completado", sub: "BAH Gastronomía", time: "Hace 2h" },
+  { type: "file" as ActivityType, label: "Archivo subido", sub: "Logo_nuevo_bah.png", time: "Hace 4h" },
+  { type: "comment" as ActivityType, label: "Comentario agregado", sub: "Movida Búzios", time: "Hace 6h" },
+  { type: "budget" as ActivityType, label: "Presupuesto enviado", sub: "Silk Beach Club", time: "Hace 1d" },
+  { type: "idea" as ActivityType, label: "Idea aprobada", sub: "Buda Beach Búzios", time: "Hace 1d" },
+];
+
+export type TaskPriority = "Alta" | "Media" | "Baja";
+
+export const tasks = [
+  { label: "Revisar contenido home", project: "BAH Gastronomía", priority: "Alta" as TaskPriority },
+  { label: "Aprobar presupuesto", project: "Silk Beach Club", priority: "Media" as TaskPriority },
+  { label: "Subir fotos del local", project: "Movida Búzios", priority: "Media" as TaskPriority },
+  { label: "Revisión de menú digital", project: "Buda Beach Búzios", priority: "Baja" as TaskPriority },
+];
+
+export const meetings = [
+  { label: "Reunión BAH Gastronomía", date: "14 Jun, 15:00", avatars: ["BS", "MV", "+2"] },
+  { label: "Reunión Movida Búzios", date: "15 Jun, 16:00", avatars: ["BS", "AG"] },
+];
