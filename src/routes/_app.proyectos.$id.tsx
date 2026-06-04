@@ -62,7 +62,17 @@ function Page() {
                 </div>
               ))}
             </dl>
-            <button className="mt-5 w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border bg-surface-elevated text-[12.5px] font-medium hover:bg-muted">
+            {project.siteUrl && (
+              <a
+                href={project.siteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground text-[12.5px] font-semibold hover:opacity-90 transition-opacity"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Ver sitio en vivo
+              </a>
+            )}
+            <button className={`${project.siteUrl ? "mt-2" : "mt-5"} w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border bg-surface-elevated text-[12.5px] font-medium hover:bg-muted`}>
               <Pencil className="h-3.5 w-3.5" /> Editar proyecto
             </button>
           </div>

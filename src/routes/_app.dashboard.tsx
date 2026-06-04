@@ -3,7 +3,7 @@ import { projects, activities, tasks, meetings } from "@/lib/mock-data";
 import { StatusBadge } from "@/components/app/Badge";
 import { useLang } from "@/lib/i18n";
 import {
-  Plus, Play, ArrowUpRight, Calendar,
+  Plus, Play, ArrowUpRight, Calendar, ExternalLink,
   FolderKanban, TrendingUp, Lightbulb, Receipt,
   FileText, Upload, MessageSquare, DollarSign,
 } from "lucide-react";
@@ -52,11 +52,24 @@ function Sparkline({ points, color }: { points: string; color: string }) {
 
 function ProjectCard({ p, labels }: { p: typeof projects[0]; labels: { progress: string; stage: string; lastAct: string } }) {
   return (
-    <Link
-      to="/proyectos/$id"
-      params={{ id: p.id }}
-      className="block rounded-2xl overflow-hidden border border-border bg-card hover:border-primary/30 hover:shadow-elevated transition-all duration-200 group"
-    >
+    <div className="relative rounded-2xl overflow-hidden border border-border bg-card hover:border-primary/30 hover:shadow-elevated transition-all duration-200 group">
+      {p.siteUrl && (
+        <a
+          href={p.siteUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="absolute top-2.5 right-2.5 z-10 h-7 w-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-primary transition-colors"
+          title="Ver sitio en vivo"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+        </a>
+      )}
+      <Link
+        to="/proyectos/$id"
+        params={{ id: p.id }}
+        className="block"
+      >
       <div className="relative h-44 overflow-hidden">
         {p.coverImage && (
           <img
@@ -100,7 +113,8 @@ function ProjectCard({ p, labels }: { p: typeof projects[0]; labels: { progress:
           <span className="text-[11px] text-muted-foreground truncate">{p.updated}</span>
         </div>
       </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 
