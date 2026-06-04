@@ -15,5 +15,6 @@ export default defineConfig({
   // Deploy fuera de Lovable (Vercel). Dentro del editor de Lovable este preset
   // se ignora (ahí el build se fuerza a Cloudflare). En nuestro CI/Vercel,
   // Nitro genera la salida en formato Build Output API (.vercel/output).
-  nitro: { preset: "vercel" },
+  // NITRO_PRESET permite probar otros targets localmente (ej. node-server).
+  nitro: { preset: process.env.NITRO_PRESET || "vercel" },
 });
