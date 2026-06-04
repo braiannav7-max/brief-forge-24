@@ -162,7 +162,7 @@ export const projects: Project[] = [
     coverImage: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=1200&q=85",
     hasVideo: true,
     team: ["BS", "FR", "LC", "+1"],
-    siteUrl: "https://braiannav7-max.github.io/MONDO-KHAN/",
+    siteUrl: "https://mondo-khan.vercel.app/",
   },
 ];
 
