@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BriefingTokenRouteImport } from './routes/briefing.$token'
 import { Route as AppIaRouteImport } from './routes/_app.ia'
 import { Route as AppDocumentosRouteImport } from './routes/_app.documentos'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
@@ -28,6 +29,11 @@ const AppRoute = AppRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BriefingTokenRoute = BriefingTokenRouteImport.update({
+  id: '/briefing/$token',
+  path: '/briefing/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppIaRoute = AppIaRouteImport.update({
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/documentos': typeof AppDocumentosRoute
   '/ia': typeof AppIaRoute
+  '/briefing/$token': typeof BriefingTokenRoute
   '/proyectos/$id': typeof AppProyectosIdRoute
   '/proyectos/': typeof AppProyectosIndexRoute
 }
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/documentos': typeof AppDocumentosRoute
   '/ia': typeof AppIaRoute
+  '/briefing/$token': typeof BriefingTokenRoute
   '/proyectos/$id': typeof AppProyectosIdRoute
   '/proyectos': typeof AppProyectosIndexRoute
 }
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/documentos': typeof AppDocumentosRoute
   '/_app/ia': typeof AppIaRoute
+  '/briefing/$token': typeof BriefingTokenRoute
   '/_app/proyectos/$id': typeof AppProyectosIdRoute
   '/_app/proyectos/': typeof AppProyectosIndexRoute
 }
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/documentos'
     | '/ia'
+    | '/briefing/$token'
     | '/proyectos/$id'
     | '/proyectos/'
   fileRoutesByTo: FileRoutesByTo
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/documentos'
     | '/ia'
+    | '/briefing/$token'
     | '/proyectos/$id'
     | '/proyectos'
   id:
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/documentos'
     | '/_app/ia'
+    | '/briefing/$token'
     | '/_app/proyectos/$id'
     | '/_app/proyectos/'
   fileRoutesById: FileRoutesById
@@ -157,6 +169,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  BriefingTokenRoute: typeof BriefingTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -173,6 +186,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/briefing/$token': {
+      id: '/briefing/$token'
+      path: '/briefing/$token'
+      fullPath: '/briefing/$token'
+      preLoaderRoute: typeof BriefingTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/ia': {
@@ -270,7 +290,18 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  BriefingTokenRoute: BriefingTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

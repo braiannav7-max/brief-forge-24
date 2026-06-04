@@ -1,22 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { kpis, projects } from "@/lib/mock-data";
 import { StatusBadge } from "@/components/app/Badge";
-import { ArrowUpRight, Plus, Users, FolderKanban, ClipboardList, TrendingUp } from "lucide-react";
+import { ArrowUpRight, Plus, Building2, FolderKanban, Lightbulb, FolderArchive, FileText, TrendingUp } from "lucide-react";
 
 export const Route = createFileRoute("/_app/dashboard")({
   component: Dashboard,
 });
 
-const kpiIcons = [Users, FolderKanban, ClipboardList, TrendingUp];
+// Un ícono por KPI (en el mismo orden que `kpis` en mock-data.ts).
+const kpiIcons = [Building2, FolderKanban, Lightbulb, FolderArchive, FileText, TrendingUp];
 
 function Dashboard() {
   return (
     <div className="space-y-8 max-w-[1400px]">
       <div className="flex items-start justify-between gap-6 flex-wrap">
         <div>
-          <h1 className="text-[28px] font-bold tracking-tight">Bienvenido, Braian.</h1>
+          <h1 className="text-[28px] font-bold tracking-tight">¡Bienvenido, Braian! 👋</h1>
           <p className="mt-1.5 text-[14px] text-muted-foreground max-w-xl">
-            Gestiona proyectos, recibe briefings y deja que la IA transforme ideas en sitios web.
+            Gestiona todos los proyectos del Grupo Viva Búzios desde un solo lugar.
           </p>
         </div>
         <button className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-[13.5px] font-medium hover:opacity-90 shadow-soft">
@@ -24,9 +25,9 @@ function Dashboard() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {kpis.map((k, i) => {
-          const Icon = kpiIcons[i];
+          const Icon = kpiIcons[i] ?? TrendingUp;
           return (
             <div key={k.label} className="rounded-2xl border border-border bg-card p-5 shadow-soft">
               <div className="flex items-start justify-between">

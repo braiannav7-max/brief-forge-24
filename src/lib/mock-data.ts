@@ -3,6 +3,8 @@ import type { ProjectStatus } from "@/components/app/Badge";
 export type Project = {
   id: string;
   name: string;
+  category: string;
+  description: string;
   contact: string;
   email: string;
   phone: string;
@@ -10,25 +12,165 @@ export type Project = {
   start: string;
   delivery: string;
   status: ProjectStatus;
+  stage: string;
   progress: number;
   updated: string;
+  lastActivity: string;
   initials: string;
   accent: string;
+  logoClass: string;
+  coverImage?: string;
+  hasVideo?: boolean;
+  team: string[];
 };
 
 export const projects: Project[] = [
-  { id: "restaurantes-del-mar", name: "Restaurantes Del Mar", contact: "Laura Méndez", email: "laura@delmar.com", phone: "+54 11 5555 1100", budget: "$8.400", start: "01 May 2026", delivery: "30 Jun 2026", status: "Diseño", progress: 60, updated: "Hoy 10:24 AM", initials: "DM", accent: "from-[oklch(0.7_0.13_25)] to-[oklch(0.6_0.16_25)]" },
-  { id: "innova-studio",        name: "Innova Studio",        contact: "Marco Ruiz",   email: "marco@innova.io",  phone: "+54 11 5555 2200", budget: "$6.200", start: "12 May 2026", delivery: "22 Jul 2026", status: "Briefing", progress: 30, updated: "Ayer 03:15 PM", initials: "IS", accent: "from-[oklch(0.6_0.15_260)] to-[oklch(0.5_0.18_270)]" },
-  { id: "muebleria-estilo",     name: "Mueblería Estilo",     contact: "Sofía Torres", email: "sofia@estilo.com", phone: "+54 11 5555 3300", budget: "$11.900", start: "20 Abr 2026", delivery: "18 Jul 2026", status: "Desarrollo", progress: 75, updated: "Ayer 11:42 AM", initials: "ME", accent: "from-[oklch(0.65_0.13_60)] to-[oklch(0.55_0.15_55)]" },
-  { id: "clinica-vitalis",      name: "Clínica Vitalis",      contact: "Dr. Pablo Gómez", email: "pablo@vitalis.health", phone: "+54 11 5555 4400", budget: "$15.500", start: "05 Mar 2026", delivery: "05 Jun 2026", status: "Testing", progress: 90, updated: "12 May 09:30 AM", initials: "CV", accent: "from-[oklch(0.7_0.12_160)] to-[oklch(0.55_0.14_165)]" },
-  { id: "viajes-andina",        name: "Viajes Andina",        contact: "Camila Ríos",  email: "camila@andina.tur", phone: "+54 11 5555 5500", budget: "$4.800", start: "25 May 2026", delivery: "30 Ago 2026", status: "Pendiente", progress: 10, updated: "10 May 04:20 PM", initials: "VA", accent: "from-[oklch(0.7_0.13_220)] to-[oklch(0.55_0.15_230)]" },
+  {
+    id: "bah-gastronomia",
+    name: "BAH Gastronomía",
+    category: "Hamburguería & Pizzería Artesanal",
+    description: "Marca gastronómica con foco en delivery, reservas y campañas locales.",
+    contact: "Equipo BAH",
+    email: "marketing@bahbuzios.com",
+    phone: "+55 22 99999 1100",
+    budget: "R$ 18.500",
+    start: "13 May 2026",
+    delivery: "28 Jun 2026",
+    status: "Diseño",
+    stage: "Diseño",
+    progress: 72,
+    updated: "Hoy, 18:42",
+    lastActivity: "Nuevo briefing completado",
+    initials: "BAH",
+    accent: "from-[oklch(0.58_0.19_28)] to-[oklch(0.5_0.2_22)]",
+    logoClass: "bg-red-600 text-white",
+    coverImage: "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=85",
+    hasVideo: true,
+    team: ["BS", "MV", "LC", "+2"],
+  },
+  {
+    id: "movida-buzios",
+    name: "Movida Búzios",
+    category: "Bar, Mixología & Club",
+    description: "Experiencia nocturna premium con contenido audiovisual y reservas.",
+    contact: "Equipo Movida",
+    email: "brand@movidabuzios.com",
+    phone: "+55 22 99999 2200",
+    budget: "R$ 22.000",
+    start: "15 May 2026",
+    delivery: "12 Jul 2026",
+    status: "Desarrollo",
+    stage: "Desarrollo",
+    progress: 65,
+    updated: "Hoy, 17:30",
+    lastActivity: "Comentario agregado",
+    initials: "M",
+    accent: "from-[oklch(0.63_0.2_305)] to-[oklch(0.58_0.18_245)]",
+    logoClass: "bg-black text-amber-300 ring-1 ring-amber-400/40",
+    coverImage: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=1200&q=85",
+    hasVideo: true,
+    team: ["BS", "AG", "FR", "+3"],
+  },
+  {
+    id: "silk-beach-club",
+    name: "Silk Beach Club",
+    category: "Restaurante & Beach Club",
+    description: "Portal visual para gastronomía, eventos, beach service y reservas.",
+    contact: "Dirección Silk",
+    email: "contacto@silkbeachclub.com",
+    phone: "+55 22 99999 3300",
+    budget: "R$ 26.400",
+    start: "10 May 2026",
+    delivery: "30 Jun 2026",
+    status: "Contenido",
+    stage: "Contenido",
+    progress: 80,
+    updated: "Ayer, 21:15",
+    lastActivity: "Presupuesto enviado",
+    initials: "silk",
+    accent: "from-[oklch(0.78_0.06_225)] to-[oklch(0.58_0.1_230)]",
+    logoClass: "bg-white text-slate-900",
+    coverImage: "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=85",
+    hasVideo: true,
+    team: ["BS", "MV", "RN", "+4"],
+  },
+  {
+    id: "buda-beach-buzios",
+    name: "Buda Beach Búzios",
+    category: "Restaurante & Lounge",
+    description: "Sitio inmersivo para propuesta gastronómica, eventos y marca.",
+    contact: "Equipo Buda Beach",
+    email: "hello@budabeachbuzios.com",
+    phone: "+55 22 99999 4400",
+    budget: "R$ 16.800",
+    start: "20 May 2026",
+    delivery: "18 Jul 2026",
+    status: "Briefing",
+    stage: "Briefing",
+    progress: 60,
+    updated: "Ayer, 16:20",
+    lastActivity: "Idea aprobada",
+    initials: "BB",
+    accent: "from-[oklch(0.72_0.14_52)] to-[oklch(0.52_0.13_35)]",
+    logoClass: "bg-white text-orange-900",
+    coverImage: "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1200&q=85",
+    hasVideo: true,
+    team: ["BS", "LC", "RN", "+2"],
+  },
+  {
+    id: "buzios-gastro-group",
+    name: "Búzios Gastro Group",
+    category: "Proyecto Corporativo",
+    description: "Hub institucional para ordenar marcas, activos y oportunidades.",
+    contact: "Dirección Grupo Viva",
+    email: "core@vivabuzios.com",
+    phone: "+55 22 99999 5500",
+    budget: "R$ 31.000",
+    start: "25 May 2026",
+    delivery: "30 Ago 2026",
+    status: "Planeación",
+    stage: "Planeación",
+    progress: 48,
+    updated: "12 Jun, 11:05",
+    lastActivity: "Arquitectura inicial creada",
+    initials: "B",
+    accent: "from-[oklch(0.65_0.1_215)] to-[oklch(0.45_0.08_230)]",
+    logoClass: "bg-black text-white ring-1 ring-white/20",
+    coverImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85",
+    team: ["BS", "MV", "AG", "+2"],
+  },
+  {
+    id: "mondo-khan",
+    name: "Mondo Khan",
+    category: "Galería de Arte & Cultura",
+    description: "Experiencia editorial para arte, agenda cultural y colecciones.",
+    contact: "Curaduría Mondo Khan",
+    email: "studio@mondokhan.com",
+    phone: "+55 22 99999 6600",
+    budget: "R$ 20.600",
+    start: "01 Jun 2026",
+    delivery: "21 Jul 2026",
+    status: "Desarrollo",
+    stage: "Avanzado",
+    progress: 80,
+    updated: "Hoy, 12:10",
+    lastActivity: "Video de portada subido",
+    initials: "MK",
+    accent: "from-[oklch(0.5_0.05_70)] to-[oklch(0.25_0.03_65)]",
+    logoClass: "bg-zinc-950 text-white ring-1 ring-white/20",
+    coverImage: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=1200&q=85",
+    hasVideo: true,
+    team: ["BS", "FR", "LC", "+1"],
+  },
 ];
 
 export const kpis = [
-  { label: "Clientes activos",    value: "24",      delta: "+12% este mes", trend: "up" },
-  { label: "Proyectos abiertos",  value: "12",      delta: "+8% este mes",  trend: "up" },
-  { label: "Pendientes de revisión", value: "5",    delta: "+15% este mes", trend: "up" },
-  { label: "Ingresos proyectados", value: "$24.500", delta: "+18% este mes", trend: "up" },
+  { label: "Empresas activas", value: "6", delta: "100% del grupo", trend: "up" },
+  { label: "Proyectos activos", value: "6", delta: "+1 esta semana", trend: "up" },
+  { label: "Ideas registradas", value: "48", delta: "+8 esta semana", trend: "up" },
+  { label: "Archivos subidos", value: "128", delta: "+22 esta semana", trend: "up" },
+  { label: "Presupuestos enviados", value: "3", delta: "+1 pendiente aprobación", trend: "up" },
+  { label: "Progreso promedio", value: "67%", delta: "+12% vs. semana pasada", trend: "up" },
 ];
 
 export const documents = [

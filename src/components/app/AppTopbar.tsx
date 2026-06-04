@@ -1,4 +1,5 @@
 import { Bell, Search, HelpCircle } from "lucide-react";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export function AppTopbar({ title }: { title?: string }) {
   return (
@@ -7,13 +8,14 @@ export function AppTopbar({ title }: { title?: string }) {
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
-            placeholder="Buscar proyectos, clientes…"
+            placeholder="Buscar proyectos, ideas, archivos…"
             className="w-full h-10 rounded-lg border border-border bg-surface-elevated pl-10 pr-3 text-[13px] placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring"
           />
         </div>
       </div>
       {title && <h2 className="text-sm font-medium text-muted-foreground hidden md:block">{title}</h2>}
       <div className="ml-auto flex items-center gap-2">
+        <ThemeToggle />
         <button className="h-10 w-10 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground">
           <HelpCircle className="h-[18px] w-[18px]" />
         </button>

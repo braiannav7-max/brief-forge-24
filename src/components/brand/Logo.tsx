@@ -20,8 +20,8 @@ export function Logo({ className, compact = false }: { className?: string; compa
       </div>
       {!compact && (
         <div className="leading-tight">
-          <div className="text-[13px] font-bold tracking-tight text-foreground">AI CLIENT PORTAL</div>
-          <div className="text-[10.5px] text-muted-foreground tracking-wide">Website Discovery System</div>
+          <div className="text-[13px] font-bold tracking-tight text-foreground">VIVA CORE</div>
+          <div className="text-[10.5px] text-muted-foreground tracking-wide">AI Agency Operating System</div>
         </div>
       )}
     </div>

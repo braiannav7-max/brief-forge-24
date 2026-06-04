@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { ThemeProvider, themeInitScript } from "../components/theme/ThemeProvider";
 
 function NotFoundComponent() {
   return (
@@ -77,15 +78,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AI Client Portal — Website Discovery System" },
-      { name: "description", content: "Plataforma premium para agencias y desarrolladores: briefings inteligentes, gestión documental y análisis con IA." },
-      { name: "author", content: "AI Client Portal" },
-      { property: "og:title", content: "AI Client Portal — Website Discovery System" },
-      { property: "og:description", content: "Plataforma premium para agencias y desarrolladores: briefings inteligentes, gestión documental y análisis con IA." },
+      { title: "VIVA CORE — AI Agency Operating System" },
+      { name: "description", content: "El sistema operativo de tu agencia digital: proyectos, briefings inteligentes, archivos, presupuestos y análisis con IA en un solo lugar." },
+      { name: "author", content: "VIVA CORE" },
+      { property: "og:title", content: "VIVA CORE — AI Agency Operating System" },
+      { property: "og:description", content: "El sistema operativo de tu agencia digital: proyectos, briefings inteligentes, archivos, presupuestos y análisis con IA en un solo lugar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "AI Client Portal — Website Discovery System" },
-      { name: "twitter:description", content: "Plataforma premium para agencias y desarrolladores: briefings inteligentes, gestión documental y análisis con IA." },
+      { name: "twitter:title", content: "VIVA CORE — AI Agency Operating System" },
+      { name: "twitter:description", content: "El sistema operativo de tu agencia digital: proyectos, briefings inteligentes, archivos, presupuestos y análisis con IA en un solo lugar." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b14b862b-8989-4611-9747-f4e297452231" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/b14b862b-8989-4611-9747-f4e297452231" },
     ],
@@ -104,8 +105,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="es" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <HeadContent />
       </head>
       <body>
@@ -121,8 +123,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <ThemeProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

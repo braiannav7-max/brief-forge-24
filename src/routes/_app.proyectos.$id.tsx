@@ -1,45 +1,35 @@
+import { useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { projects, chat, roadmap } from "@/lib/mock-data";
+import { projects, roadmap } from "@/lib/mock-data";
+import { getCompanyBySlug } from "@/lib/companies";
+import { getBriefing } from "@/lib/api/briefings.functions";
+import { briefingSchema } from "@/lib/briefing-schema";
+import { computeProgress } from "@/lib/briefing-progress";
+import { BriefingView } from "@/components/briefing/BriefingView";
 import { StatusBadge } from "@/components/app/Badge";
 import {
-  ArrowLeft, Pencil, Check, Upload, Paperclip, Send,
-  CheckCircle2, Circle, Loader2,
+  ArrowLeft, Pencil, Copy, Check, ExternalLink, FileWarning,
+  CheckCircle2, Circle, Loader2, Sparkles,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/proyectos/$id")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
     const project = projects.find((p) => p.id === params.id);
     if (!project) throw notFound();
-    return { project };
+    const company = getCompanyBySlug(params.id) ?? null;
+    const briefing = company ? await getBriefing({ data: { token: company.token } }) : null;
+    return { project, company, briefing };
   },
   errorComponent: ({ error }) => <div className="p-6 text-sm text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-6 text-sm">Proyecto no encontrado.</div>,
   component: Page,
 });
 
-const moduleSections = [
-  { id: "general",  label: "Información general" },
-  { id: "objetivos", label: "Objetivos" },
-  { id: "identidad", label: "Identidad visual" },
-  { id: "estructura", label: "Estructura del sitio" },
-  { id: "marketing", label: "Marketing" },
-  { id: "funcionalidades", label: "Funcionalidades" },
-  { id: "comentarios", label: "Comentarios" },
-];
-
-const objetivos = ["Generar ventas", "Captar leads", "Reservas", "Branding", "Ecommerce", "Landing", "CRM", "SaaS", "Aplicación móvil", "Otro"];
-const estructura = ["Inicio", "Nosotros", "Servicios", "Productos", "Galería", "Blog", "FAQ", "Testimonios", "Contacto", "WhatsApp", "Mapa", "Reservas", "Tienda online", "Área privada", "Panel cliente", "Chat IA", "Automatizaciones", "Otro"];
-
-const iaInsights = [
-  "Se detectó orientación a conversión.",
-  "Se recomienda Landing con Video Hero.",
-  "Faltan archivos de branding.",
-  "Agregar sección de testimonios.",
-  "Recomendada integración WhatsApp.",
-];
-
 function Page() {
-  const { project } = Route.useLoaderData();
+  const { project, company, briefing } = Route.useLoaderData();
+  const answers = briefing?.answers ?? {};
+  const progress = briefing ? computeProgress(answers) : 0;
+
   return (
     <div className="space-y-6 max-w-[1500px]">
       <Link to="/proyectos" className="inline-flex items-center gap-2 text-[12.5px] text-muted-foreground hover:text-foreground">
@@ -77,88 +67,41 @@ function Page() {
             </button>
           </div>
 
-          <nav className="rounded-2xl border border-border bg-card p-2 shadow-soft">
-            {moduleSections.map((s, i) => (
-              <a
-                href={`#${s.id}`}
-                key={s.id}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] transition ${i === 0 ? "bg-primary/8 text-primary font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
-                {s.label}
-              </a>
-            ))}
-          </nav>
+          {company && (
+            <nav className="rounded-2xl border border-border bg-card p-2 shadow-soft">
+              <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Secciones del briefing</div>
+              {briefingSchema.map((s) => (
+                <a
+                  href={`#${s.id}`}
+                  key={s.id}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] text-muted-foreground hover:bg-muted hover:text-foreground transition"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
+                  {s.title}
+                </a>
+              ))}
+            </nav>
+          )}
         </aside>
 
-        {/* CENTER */}
+        {/* CENTER — Briefing real */}
         <div className="space-y-5">
-          <ModuleCard id="general" title="Información general">
-            <Field label="Nombre comercial" value={project.name} />
-            <Field label="Historia de la empresa" textarea value="Somos una cadena de restaurantes especializada en mariscos frescos y cocina mediterránea. Nacimos en 2010 con la misión de ofrecer experiencias gastronómicas únicas frente al mar." />
-            <Field label="Misión" textarea value="Brindar experiencias gastronómicas únicas con ingredientes frescos y un servicio excepcional." />
-            <Field label="Valores" value="Calidad, Pasión, Sostenibilidad, Innovación, Cercanía." />
-            <Field label="Público objetivo" textarea value="Personas de 25 a 55 años que buscan experiencias gastronómicas de calidad en ambientes únicos." />
-            <Field label="¿Cómo describirían la esencia de la marca?" textarea value="Fresca, elegante, acogedora y auténtica. Queremos que cada visita se sienta como una experiencia memorable." />
-          </ModuleCard>
-
-          <ModuleCard id="objetivos" title="Objetivos">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {objetivos.map((o, i) => (
-                <Checkbox key={o} label={o} defaultChecked={[0, 2, 3].includes(i)} />
-              ))}
+          {company ? (
+            <>
+              <BriefingHeader token={company.token} submitted={briefing?.submitted ?? false} updatedAt={briefing?.updatedAt} />
+              <BriefingView answers={answers} />
+            </>
+          ) : (
+            <div className="rounded-2xl border border-border bg-card shadow-soft p-10 text-center">
+              <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground">
+                <FileWarning className="h-6 w-6" />
+              </div>
+              <h3 className="mt-4 text-[15px] font-semibold">Esta empresa no tiene briefing configurado</h3>
+              <p className="mt-1.5 text-[12.5px] text-muted-foreground">
+                Agregá la empresa en <code className="text-foreground">src/lib/companies.ts</code> con su <code className="text-foreground">slug</code> = <code className="text-foreground">{project.id}</code>.
+              </p>
             </div>
-          </ModuleCard>
-
-          <ModuleCard id="identidad" title="Identidad visual">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {["Logo", "Manual de marca", "Fotografías", "Videos", "Paleta de colores", "Referencias"].map((l) => (
-                <button key={l} className="aspect-[5/3] rounded-xl border-2 border-dashed border-border bg-muted/30 hover:bg-muted/60 hover:border-primary/40 transition flex flex-col items-center justify-center gap-1.5 text-muted-foreground hover:text-foreground">
-                  <Upload className="h-4 w-4" />
-                  <span className="text-[11.5px] font-medium">{l}</span>
-                </button>
-              ))}
-            </div>
-          </ModuleCard>
-
-          <ModuleCard id="estructura" title="Estructura del sitio">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {estructura.map((s, i) => <Checkbox key={s} label={s} defaultChecked={i < 7} />)}
-            </div>
-          </ModuleCard>
-
-          <ModuleCard id="marketing" title="Marketing">
-            <Field label="Dolor principal del cliente" textarea value="Pocas reservas online y baja visibilidad en buscadores locales." />
-            <div className="grid sm:grid-cols-2 gap-3">
-              <Field label="Público objetivo" value="25-55 años, foodies, turismo local" />
-              <Field label="Competidores" value="La Marina, Puerto Azul, Costa Brava" />
-              <Field label="Palabras clave" value="restaurante mariscos, cena romántica, reservas" />
-              <Field label="Campañas activas" value="Instagram Ads, Google Local" />
-              <Field label="Redes sociales" value="@delmar.restaurantes" />
-            </div>
-          </ModuleCard>
-
-          <ModuleCard id="funcionalidades" title="Funcionalidades especiales">
-            <textarea
-              className="w-full min-h-[140px] rounded-lg border border-border bg-surface-elevated p-3 text-[13px] resize-y focus:outline-none focus:ring-2 focus:ring-ring/30"
-              placeholder="Describe cualquier idea especial para este proyecto."
-              defaultValue="Reservas en tiempo real con confirmación por WhatsApp, menú interactivo con maridajes sugeridos y sistema de fidelización por niveles."
-            />
-          </ModuleCard>
-
-          <ModuleCard id="comentarios" title="Comentarios generales">
-            <textarea
-              className="w-full min-h-[160px] rounded-lg border border-border bg-surface-elevated p-3 text-[13px] resize-y focus:outline-none focus:ring-2 focus:ring-ring/30"
-              placeholder="Escribe cualquier comentario adicional…"
-            />
-          </ModuleCard>
-
-          {/* Documents + Chat + Roadmap row */}
-          <div className="grid lg:grid-cols-3 gap-5">
-            <DocsCard />
-            <ChatCard />
-            <RoadmapCard />
-          </div>
+          )}
         </div>
 
         {/* RIGHT — STICKY */}
@@ -166,75 +109,62 @@ function Page() {
           <div className="rounded-2xl border border-border bg-card shadow-soft p-5">
             <div className="flex items-center gap-2">
               <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-lavender flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-white" fill="currentColor"><path d="M12 2l2 6h6l-5 4 2 7-5-4-5 4 2-7-5-4h6z"/></svg>
+                <Sparkles className="h-3.5 w-3.5 text-white" />
               </div>
               <h3 className="text-[14px] font-semibold">Análisis IA</h3>
+              <span className="ml-auto rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground">Próximamente</span>
             </div>
-            <ul className="mt-4 space-y-2.5">
-              {iaInsights.map((t) => (
-                <li key={t} className="flex items-start gap-2 text-[12.5px] leading-relaxed">
-                  <span className="mt-0.5 h-4 w-4 rounded-full bg-success flex items-center justify-center shrink-0">
-                    <Check className="h-2.5 w-2.5 text-success-foreground" />
-                  </span>
-                  <span>{t}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="rounded-2xl border border-border bg-card shadow-soft p-5">
-            <h3 className="text-[14px] font-semibold">Resumen Ejecutivo</h3>
             <p className="mt-3 text-[12.5px] text-muted-foreground leading-relaxed">
-              Restaurantes Del Mar es una marca orientada a experiencias premium en gastronomía marina.
-              El objetivo principal es aumentar reservas online y fortalecer presencia digital con una
-              identidad visual fresca y elegante.
+              Cuando conectemos Claude, acá vas a ver el análisis automático del briefing:
+              faltantes, sugerencias de UX y un resumen ejecutivo.
             </p>
           </div>
 
           <div className="rounded-2xl border border-border bg-card shadow-soft p-5">
-            <h3 className="text-[14px] font-semibold">Compleción del proyecto</h3>
+            <h3 className="text-[14px] font-semibold">Compleción del briefing</h3>
             <div className="mt-4 flex items-center gap-5">
-              <CircularProgress value={78} />
+              <CircularProgress value={progress} />
               <div className="text-[12px] text-muted-foreground">
-                <div>5 de 7 módulos completados</div>
-                <div className="mt-1 text-[11px]">Faltan archivos de branding y comentarios.</div>
+                <div>{briefing?.submitted ? "Briefing enviado por el cliente" : `${progress}% completado`}</div>
+                {briefing?.updatedAt && (
+                  <div className="mt-1 text-[11px]">Última edición: {new Date(briefing.updatedAt).toLocaleString("es-AR")}</div>
+                )}
               </div>
             </div>
           </div>
+
+          <RoadmapCard />
         </aside>
       </div>
     </div>
   );
 }
 
-function ModuleCard({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
+function BriefingHeader({ token, submitted, updatedAt }: { token: string; submitted: boolean; updatedAt?: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/briefing/${token}`).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    });
+  };
   return (
-    <section id={id} className="rounded-2xl border border-border bg-card shadow-soft p-6 scroll-mt-24">
-      <h3 className="text-[15px] font-semibold mb-5">{title}</h3>
-      <div className="space-y-4">{children}</div>
-    </section>
-  );
-}
-
-function Field({ label, value, textarea }: { label: string; value: string; textarea?: boolean }) {
-  return (
-    <div>
-      <label className="block text-[11.5px] font-medium text-muted-foreground mb-1.5">{label}</label>
-      {textarea ? (
-        <textarea defaultValue={value} className="w-full min-h-[80px] rounded-lg border border-border bg-surface-elevated p-3 text-[13px] resize-y focus:outline-none focus:ring-2 focus:ring-ring/30" />
-      ) : (
-        <input defaultValue={value} className="w-full h-10 rounded-lg border border-border bg-surface-elevated px-3 text-[13px] focus:outline-none focus:ring-2 focus:ring-ring/30" />
-      )}
+    <div className="rounded-2xl border border-border bg-card shadow-soft p-5 flex flex-wrap items-center gap-3">
+      <div className="flex-1 min-w-0">
+        <h2 className="text-[15px] font-semibold">Briefing del cliente</h2>
+        <p className="text-[12px] text-muted-foreground">
+          {submitted ? "Enviado por el cliente" : "En progreso"}
+          {updatedAt && ` · actualizado ${new Date(updatedAt).toLocaleString("es-AR")}`}
+        </p>
+      </div>
+      <button onClick={copy} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-elevated px-3.5 py-2 text-[12.5px] font-medium hover:bg-muted">
+        {copied ? <Check className="h-3.5 w-3.5 text-success-foreground" /> : <Copy className="h-3.5 w-3.5" />}
+        {copied ? "Link copiado" : "Copiar link"}
+      </button>
+      <Link to="/briefing/$token" params={{ token }} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-[12.5px] font-medium text-primary-foreground hover:opacity-90">
+        Abrir / editar <ExternalLink className="h-3.5 w-3.5" />
+      </Link>
     </div>
-  );
-}
-
-function Checkbox({ label, defaultChecked }: { label: string; defaultChecked?: boolean }) {
-  return (
-    <label className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-border bg-surface-elevated hover:bg-muted cursor-pointer transition">
-      <input type="checkbox" defaultChecked={defaultChecked} className="h-4 w-4 rounded border-border accent-[oklch(0.46_0.18_266)]" />
-      <span className="text-[12.5px]">{label}</span>
-    </label>
   );
 }
 
@@ -254,56 +184,6 @@ function CircularProgress({ value }: { value: number }) {
         </defs>
       </svg>
       <div className="absolute inset-0 flex items-center justify-center text-[15px] font-bold">{value}%</div>
-    </div>
-  );
-}
-
-function DocsCard() {
-  const docs = ["Blueprint del Proyecto", "Resumen Ejecutivo", "Arquitectura Web", "SEO Inicial", "Propuesta Comercial"];
-  return (
-    <div className="rounded-2xl border border-border bg-card shadow-soft p-5">
-      <h3 className="text-[14px] font-semibold mb-3">Documentos</h3>
-      <ul className="divide-y divide-border">
-        {docs.map((d) => (
-          <li key={d} className="py-2.5 flex items-center gap-3">
-            <div className="h-8 w-8 rounded-md bg-info flex items-center justify-center text-info-foreground text-[9px] font-bold">PDF</div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[12.5px] font-medium truncate">{d}</div>
-              <div className="text-[10.5px] text-muted-foreground">PDF · Generado el 15 May 2026</div>
-            </div>
-            <button className="text-[11.5px] text-primary font-medium hover:underline">Descargar</button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function ChatCard() {
-  return (
-    <div className="rounded-2xl border border-border bg-card shadow-soft p-5 flex flex-col">
-      <h3 className="text-[14px] font-semibold mb-3">Chat del proyecto</h3>
-      <div className="space-y-3 flex-1 min-h-[260px]">
-        {chat.map((m, i) => (
-          <div key={i} className={`flex gap-2.5 ${m.me ? "" : ""}`}>
-            <div className={`h-7 w-7 rounded-full shrink-0 flex items-center justify-center text-[10px] font-semibold text-white bg-gradient-to-br ${m.me ? "from-primary to-lavender" : "from-[oklch(0.7_0.13_200)] to-[oklch(0.55_0.15_220)]"}`}>
-              {m.me ? "BA" : "C"}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-baseline gap-2">
-                <span className="text-[12px] font-semibold">{m.who}</span>
-                <span className="text-[10.5px] text-muted-foreground">{m.time}</span>
-              </div>
-              <p className="text-[12.5px] text-muted-foreground leading-relaxed mt-0.5">{m.text}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="mt-3 flex items-center gap-2 rounded-lg border border-border bg-surface-elevated px-3 py-2">
-        <input placeholder="Escribe un mensaje…" className="flex-1 bg-transparent text-[12.5px] focus:outline-none" />
-        <button className="text-muted-foreground hover:text-foreground"><Paperclip className="h-4 w-4" /></button>
-        <button className="text-primary"><Send className="h-4 w-4" /></button>
-      </div>
     </div>
   );
 }
