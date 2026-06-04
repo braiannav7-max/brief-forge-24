@@ -10,6 +10,7 @@ import type { FieldValue } from "@/lib/briefing-types";
 import type { Company } from "@/lib/companies";
 import { saveBriefingFn } from "@/lib/api/briefings.functions";
 import { FieldRenderer } from "./FieldRenderer";
+import { useLang } from "@/lib/i18n";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   Building2, Target, Link: LinkIcon, Palette, LayoutGrid, Sparkles,
@@ -33,9 +34,19 @@ export function BriefingForm({
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const { t } = useLang();
+  const f = t.form;
+
   const progress = computeProgress(answers);
   const section = briefingSchema[current];
   const isLast = current === briefingSchema.length - 1;
+
+  type SectionKey = keyof typeof f.sections;
+  const sectionT = (id: string) => f.sections[id as SectionKey] ?? { title: id, description: "" };
+  const fieldT = (sectionId: string, fieldId: string) => {
+    const key = `${sectionId}.${fieldId}` as keyof typeof f.fields;
+    return f.fields[key] ?? { label: fieldId, help: "" };
+  };
 
   const persist = useCallback(
     async (next: Record<string, FieldValue>, markSubmitted?: boolean) => {
@@ -78,23 +89,22 @@ export function BriefingForm({
         <div className="grid h-20 w-20 place-items-center rounded-full bg-gradient-to-br from-primary to-lavender shadow-elevated animate-in zoom-in duration-300">
           <CheckCircle2 className="h-10 w-10 text-white" />
         </div>
-        <h1 className="mt-8 text-3xl font-bold tracking-tight">Briefing recibido</h1>
+        <h1 className="mt-8 text-3xl font-bold tracking-tight">{f.received}</h1>
         <p className="mt-3 max-w-md text-[14.5px] text-muted-foreground leading-relaxed">
-          Gracias por completar la información de <span className="font-medium text-foreground">{company.name}</span>.
-          Con estos datos vamos a diseñar una experiencia web alineada con la estrategia de la marca y los objetivos comerciales del grupo.
+          {f.receivedSub.replace("{name}", company.name)}
         </p>
         <button onClick={() => setSubmitted(false)} className="mt-8 rounded-lg border border-border bg-card px-5 py-2.5 text-[13.5px] font-medium hover:bg-muted">
-          Editar respuestas
+          {f.editAnswers}
         </button>
       </div>
     );
   }
 
   const saveMap = {
-    idle: { Icon: Cloud, text: "Se guarda solo", cls: "text-muted-foreground" },
-    saving: { Icon: Loader2, text: "Guardando…", cls: "text-muted-foreground" },
-    saved: { Icon: Check, text: "Guardado", cls: "text-success-foreground" },
-    error: { Icon: CloudOff, text: "Sin guardar", cls: "text-destructive" },
+    idle:   { Icon: Cloud,    text: f.saveIdle,  cls: "text-muted-foreground" },
+    saving: { Icon: Loader2,  text: f.saving,    cls: "text-muted-foreground" },
+    saved:  { Icon: Check,    text: f.saved,     cls: "text-success-foreground" },
+    error:  { Icon: CloudOff, text: f.unsaved,   cls: "text-destructive" },
   }[saveState];
 
   return (
@@ -147,7 +157,7 @@ export function BriefingForm({
                     }`}>
                       {done ? <Check className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
                     </span>
-                    <span className="truncate">{s.title}</span>
+                    <span className="truncate">{sectionT(s.id).title}</span>
                   </button>
                 </li>
               );
@@ -159,19 +169,22 @@ export function BriefingForm({
         <div>
           <section key={section.id} className="rounded-2xl border border-border bg-card p-6 shadow-soft sm:p-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-              Sección {current + 1} de {briefingSchema.length}
+              {f.sectionOf.replace("{cur}", String(current + 1)).replace("{tot}", String(briefingSchema.length))}
             </p>
-            <h2 className="mt-2 text-xl font-bold tracking-tight">{section.title}</h2>
-            {section.description && <p className="mt-1.5 text-[13.5px] text-muted-foreground">{section.description}</p>}
+            <h2 className="mt-2 text-xl font-bold tracking-tight">{sectionT(section.id).title}</h2>
+            {section.description && <p className="mt-1.5 text-[13.5px] text-muted-foreground">{sectionT(section.id).description}</p>}
 
             <div className="mt-8 space-y-7">
-              {section.fields.map((field) => (
-                <div key={field.id}>
-                  <label className="mb-2 block text-[13.5px] font-medium">{field.label}</label>
-                  {field.help && <p className="-mt-1 mb-2 text-[12px] text-muted-foreground">{field.help}</p>}
-                  <FieldRenderer field={field} value={answers[`${section.id}.${field.id}`]} onChange={(v) => update(`${section.id}.${field.id}`, v)} />
-                </div>
-              ))}
+              {section.fields.map((field) => {
+                const ft = fieldT(section.id, field.id);
+                return (
+                  <div key={field.id}>
+                    <label className="mb-2 block text-[13.5px] font-medium">{ft.label || field.label}</label>
+                    {(ft.help || field.help) && <p className="-mt-1 mb-2 text-[12px] text-muted-foreground">{ft.help || field.help}</p>}
+                    <FieldRenderer field={field} value={answers[`${section.id}.${field.id}`]} onChange={(v) => update(`${section.id}.${field.id}`, v)} />
+                  </div>
+                );
+              })}
             </div>
           </section>
 
@@ -182,16 +195,16 @@ export function BriefingForm({
               disabled={current === 0}
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-[13.5px] font-medium hover:bg-muted disabled:opacity-40"
             >
-              <ArrowLeft className="h-4 w-4" /> Anterior
+              <ArrowLeft className="h-4 w-4" /> {f.previous}
             </button>
 
             {isLast ? (
               <button onClick={handleSubmit} className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-[13.5px] font-semibold text-primary-foreground hover:opacity-90 shadow-soft">
-                Enviar y finalizar <Send className="h-4 w-4" />
+                {f.submitFinish} <Send className="h-4 w-4" />
               </button>
             ) : (
               <button onClick={() => setCurrent((c) => Math.min(briefingSchema.length - 1, c + 1))} className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-[13.5px] font-semibold text-primary-foreground hover:opacity-90 shadow-soft">
-                Siguiente <ArrowRight className="h-4 w-4" />
+                {f.next} <ArrowRight className="h-4 w-4" />
               </button>
             )}
           </div>
