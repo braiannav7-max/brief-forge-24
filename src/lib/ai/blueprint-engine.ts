@@ -80,7 +80,7 @@ const RUBRO_KEYWORDS: Record<Exclude<RubroKey, "generico">, string[]> = {
   ],
 };
 
-const RUBRO_LABELS: Record<RubroKey, string> = {
+export const RUBRO_LABELS: Record<RubroKey, string> = {
   inmobiliaria: "Inmobiliaria",
   trading: "Trading / Inversiones",
   marketing: "Marketing / Agencia",
@@ -91,7 +91,7 @@ const RUBRO_LABELS: Record<RubroKey, string> = {
   generico: "Negocio general",
 };
 
-function detectRubro(haystack: string): RubroKey {
+export function detectRubro(haystack: string): RubroKey {
   const h = haystack.toLowerCase();
   for (const [key, words] of Object.entries(RUBRO_KEYWORDS) as [RubroKey, string[]][]) {
     if (words.some((w) => h.includes(w))) return key;
