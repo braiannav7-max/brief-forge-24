@@ -1,11 +1,36 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { projects, activities, tasks, meetings } from "@/lib/mock-data";
-import { StatusBadge } from "@/components/app/Badge";
-import { useLang } from "@/lib/i18n";
 import {
-  Plus, Play, ArrowUpRight, Calendar, ExternalLink,
-  FolderKanban, TrendingUp, Lightbulb, Receipt,
-  FileText, Upload, MessageSquare, DollarSign,
+  projects,
+  feedPosts,
+  teamOnline,
+  tasks,
+  meetings,
+  type FeedPost,
+  type FeedPostType,
+} from "@/lib/mock-data";
+import { useLang } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
+import {
+  Plus,
+  Image as ImageIcon,
+  Smile,
+  ThumbsUp,
+  MessageCircle,
+  Share2,
+  Calendar,
+  MoreHorizontal,
+  FileText,
+  Upload,
+  MessageSquare,
+  DollarSign,
+  Lightbulb,
+  Flag,
+  FolderKanban,
+  TrendingUp,
+  Files,
+  Sparkles,
+  HardDrive,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -13,238 +38,473 @@ export const Route = createFileRoute("/_app/dashboard")({
   component: Dashboard,
 });
 
-const kpiVisuals = [
-  { value: "6",   points: "0,20 13,16 26,18 40,10 53,13 66,8 80,6",  color: "#818cf8", Icon: FolderKanban, bg: "bg-indigo-500/10 text-indigo-400 dark:text-indigo-300" },
-  { value: "67%", points: "0,18 13,15 26,13 40,11 53,9 66,7 80,5",   color: "#a78bfa", Icon: TrendingUp,   bg: "bg-violet-500/10 text-violet-400 dark:text-violet-300" },
-  { value: "48",  points: "0,20 13,13 26,17 40,9 53,12 66,5 80,3",   color: "#34d399", Icon: Lightbulb,    bg: "bg-emerald-500/10 text-emerald-400 dark:text-emerald-300" },
-  { value: "3",   points: "0,22 13,22 26,20 40,20 53,14 66,10 80,7", color: "#f59e0b", Icon: Receipt,      bg: "bg-amber-500/10 text-amber-400 dark:text-amber-300" },
+const typeMeta: Record<FeedPostType, { bg: string; color: string; Icon: LucideIcon }> = {
+  briefing: { bg: "bg-orange-500/10", color: "text-orange-400", Icon: FileText },
+  file: { bg: "bg-indigo-500/10", color: "text-indigo-400", Icon: Upload },
+  comment: { bg: "bg-violet-500/10", color: "text-violet-400", Icon: MessageSquare },
+  budget: { bg: "bg-emerald-500/10", color: "text-emerald-400", Icon: DollarSign },
+  idea: { bg: "bg-amber-500/10", color: "text-amber-400", Icon: Lightbulb },
+  milestone: { bg: "bg-primary/10", color: "text-primary", Icon: Flag },
+};
+
+const kpiStrip = [
+  { value: "6", label: "Proyectos", Icon: FolderKanban, color: "text-indigo-400" },
+  { value: "67%", label: "Progreso", Icon: TrendingUp, color: "text-violet-400" },
+  { value: "48", label: "Ideas", Icon: Lightbulb, color: "text-emerald-400" },
+  { value: "128", label: "Archivos", Icon: Files, color: "text-amber-400" },
 ];
 
-const activityMeta: Record<string, { bg: string; color: string; Icon: LucideIcon }> = {
-  briefing: { bg: "bg-orange-500/10", color: "text-orange-400",  Icon: FileText },
-  file:     { bg: "bg-indigo-500/10", color: "text-indigo-400",  Icon: Upload },
-  comment:  { bg: "bg-violet-500/10", color: "text-violet-400",  Icon: MessageSquare },
-  budget:   { bg: "bg-emerald-500/10",color: "text-emerald-400", Icon: DollarSign },
-  idea:     { bg: "bg-amber-500/10",  color: "text-amber-400",   Icon: Lightbulb },
-};
-
-const priorityCls: Record<string, string> = {
-  Alta:  "bg-red-500/10 text-red-400",
-  Media: "bg-orange-500/10 text-orange-400",
-  Baja:  "bg-emerald-500/10 text-emerald-400",
-};
-
-function Sparkline({ points, color }: { points: string; color: string }) {
+function Avatar({
+  initials,
+  size = "h-10 w-10",
+  text = "text-[12px]",
+  gradient = "from-primary/80 to-lavender",
+}: {
+  initials: string;
+  size?: string;
+  text?: string;
+  gradient?: string;
+}) {
   return (
-    <svg viewBox="0 0 80 24" className="w-20 h-6 shrink-0" preserveAspectRatio="none">
-      <polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity="0.8"
-      />
-    </svg>
-  );
-}
-
-function ProjectCard({ p, labels }: { p: typeof projects[0]; labels: { progress: string; stage: string; lastAct: string } }) {
-  return (
-    <div className="relative rounded-2xl overflow-hidden border border-border bg-card hover:border-primary/30 hover:shadow-elevated transition-all duration-200 group">
-      {p.siteUrl && (
-        <a
-          href={p.siteUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="absolute top-2.5 right-2.5 z-10 h-7 w-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-primary transition-colors"
-          title="Ver sitio en vivo"
-        >
-          <ExternalLink className="h-3.5 w-3.5" />
-        </a>
+    <div
+      className={cn(
+        "rounded-full bg-gradient-to-br flex items-center justify-center font-bold text-white select-none shrink-0",
+        gradient,
+        size,
+        text,
       )}
-      <Link
-        to="/proyectos/$id"
-        params={{ id: p.id }}
-        className="block"
-      >
-      <div className="relative h-44 overflow-hidden">
-        {p.coverImage && (
-          <img
-            src={p.coverImage}
-            alt={p.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-        {p.hasVideo && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="h-10 w-10 rounded-full border-2 border-white/60 bg-white/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <Play className="h-4 w-4 text-white fill-white ml-0.5" />
-            </div>
-          </div>
-        )}
-        <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end gap-2.5">
-          <div className={"h-9 w-9 rounded-full " + p.logoClass + " flex items-center justify-center text-[10px] font-bold shrink-0 ring-2 ring-white/20"}>
-            {p.initials}
-          </div>
-          <div className="min-w-0">
-            <div className="text-white font-semibold text-[13.5px] leading-tight truncate">{p.name}</div>
-            <div className="text-white/55 text-[11px] truncate">{p.category}</div>
-          </div>
-        </div>
-      </div>
-      <div className="p-4 space-y-2.5">
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] text-muted-foreground shrink-0 w-[58px]">{labels.progress}</span>
-          <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-primary to-lavender rounded-full" style={{ width: p.progress + "%" }} />
-          </div>
-          <span className="text-[12px] font-semibold tabular-nums text-foreground ml-1 shrink-0">{p.progress}%</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] text-muted-foreground shrink-0 w-[58px]">{labels.stage}</span>
-          <StatusBadge status={p.status} />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] text-muted-foreground shrink-0 w-[58px]">{labels.lastAct}</span>
-          <span className="text-[11px] text-muted-foreground truncate">{p.updated}</span>
-        </div>
-      </div>
-      </Link>
+    >
+      {initials}
     </div>
   );
 }
 
-function NewProjectCard({ label, sub }: { label: string; sub: string }) {
+// ---------------- Centro: composer + stories + feed ----------------
+function Composer() {
+  const { t } = useLang();
+  const f = t.feed;
   return (
-    <button className="rounded-2xl border border-dashed border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 flex flex-col items-center justify-center gap-3 min-h-[260px] w-full group">
-      <div className="h-12 w-12 rounded-full border-2 border-dashed border-border group-hover:border-primary/60 flex items-center justify-center transition-colors">
-        <Plus className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+      <div className="flex items-center gap-3">
+        <Avatar
+          initials="BS"
+          size="h-10 w-10"
+          text="text-[13px]"
+          gradient="from-amber-400 to-orange-500"
+        />
+        <button className="flex-1 text-left rounded-full bg-muted hover:bg-muted/70 transition-colors px-4 py-2.5 text-[13px] text-muted-foreground">
+          {f.composerPlaceholder}
+        </button>
       </div>
-      <div className="text-center">
-        <p className="text-[14px] font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{label}</p>
-        <p className="text-[11.5px] text-muted-foreground/60 mt-0.5">{sub}</p>
+      <div className="mt-3 pt-3 border-t border-border grid grid-cols-3">
+        <ComposerBtn Icon={ImageIcon} label={f.photo} color="text-emerald-400" />
+        <ComposerBtn Icon={Flag} label={f.milestone} color="text-primary" />
+        <ComposerBtn Icon={Smile} label={f.update} color="text-amber-400" />
       </div>
+    </div>
+  );
+}
+
+function ComposerBtn({ Icon, label, color }: { Icon: LucideIcon; label: string; color: string }) {
+  return (
+    <button className="inline-flex items-center justify-center gap-2 rounded-lg py-2 text-[12.5px] font-semibold text-muted-foreground hover:bg-muted transition-colors">
+      <Icon className={cn("h-[18px] w-[18px]", color)} />
+      <span className="hidden sm:block">{label}</span>
     </button>
   );
 }
 
-function Dashboard() {
+function Stories() {
   const { t } = useLang();
-  const d = t.dashboard;
-  const dashKpis = kpiVisuals.map((v, i) => ({ ...v, ...d.kpis[i] }));
+  return (
+    <div className="rounded-2xl border border-border bg-card p-3 shadow-soft">
+      <div className="flex gap-2.5 overflow-x-auto pb-1">
+        <Link
+          to="/proyectos"
+          className="relative h-[150px] w-[96px] shrink-0 rounded-xl overflow-hidden border border-dashed border-border bg-surface-elevated flex flex-col items-center justify-end pb-3 hover:border-primary/50 transition-colors group"
+        >
+          <div className="absolute top-5 left-1/2 -translate-x-1/2 h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+            <Plus className="h-5 w-5 text-primary" />
+          </div>
+          <p className="text-[10.5px] font-semibold text-center px-1.5 leading-tight">
+            {t.dashboard.newProject}
+          </p>
+        </Link>
+
+        {projects.map((p) => (
+          <Link
+            key={p.id}
+            to="/proyectos/$id"
+            params={{ id: p.id }}
+            className="relative h-[150px] w-[96px] shrink-0 rounded-xl overflow-hidden group"
+          >
+            {p.coverImage && (
+              <img
+                src={p.coverImage}
+                alt={p.name}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+            <div
+              className={cn(
+                "absolute top-2 left-2 h-8 w-8 rounded-full flex items-center justify-center text-[9px] font-bold ring-[3px] ring-primary",
+                p.logoClass,
+              )}
+            >
+              {p.initials}
+            </div>
+            <p className="absolute bottom-2 left-2 right-2 text-white text-[11px] font-semibold leading-tight line-clamp-2">
+              {p.name}
+            </p>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function KpiStrip() {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {kpiStrip.map((k) => (
+        <div
+          key={k.label}
+          className="rounded-2xl border border-border bg-card p-3.5 shadow-soft flex items-center gap-3"
+        >
+          <div
+            className={cn("h-9 w-9 rounded-xl bg-muted flex items-center justify-center", k.color)}
+          >
+            <k.Icon className="h-[18px] w-[18px]" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[19px] font-bold leading-none tracking-tight">{k.value}</p>
+            <p className="text-[11px] text-muted-foreground mt-1">{k.label}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ActionBtn({
+  Icon,
+  label,
+  active,
+  onClick,
+}: {
+  Icon: LucideIcon;
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex-1 inline-flex items-center justify-center gap-2 rounded-lg py-2 text-[12.5px] font-semibold transition-colors hover:bg-muted",
+        active ? "text-primary" : "text-muted-foreground",
+      )}
+    >
+      <Icon className={cn("h-[17px] w-[17px]", active && "fill-primary")} />
+      {label}
+    </button>
+  );
+}
+
+function Post({ post }: { post: FeedPost }) {
+  const { t } = useLang();
+  const f = t.feed;
+  const meta = typeMeta[post.type];
+  const Icon = meta.Icon;
+  const [liked, setLiked] = useState(false);
+  const likeCount = post.likes + (liked ? 1 : 0);
 
   return (
-    <div className="flex gap-6 max-w-[1600px]">
-      <div className="flex-1 min-w-0 space-y-6">
-        <div>
-          <h1 className="text-[22px] md:text-[26px] font-bold tracking-tight">{d.welcome}</h1>
-          <p className="mt-1 text-[13px] md:text-[13.5px] text-muted-foreground">{d.subtitle}</p>
+    <div className="rounded-2xl border border-border bg-card shadow-soft">
+      <div className="flex items-start gap-3 p-4 pb-3">
+        <Avatar initials={post.authorInitials} size="h-10 w-10" text="text-[12px]" />
+        <div className="min-w-0 flex-1">
+          <p className="text-[13.5px] leading-tight">
+            <span className="font-semibold">{post.author}</span>
+            <span className="text-muted-foreground"> {f.verbs[post.type]} </span>
+            <span className="font-semibold">{post.project}</span>
+          </p>
+          <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
+            <span>{post.time}</span>
+            <span>·</span>
+            <span>{post.authorRole}</span>
+          </div>
         </div>
+        <div
+          className={cn(
+            "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
+            meta.bg,
+            meta.color,
+          )}
+        >
+          <Icon className="h-4 w-4" />
+        </div>
+        <button className="h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+          <MoreHorizontal className="h-4 w-4" />
+        </button>
+      </div>
 
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-          {dashKpis.map((k) => (
-            <div key={k.label} className="rounded-2xl border border-border bg-card p-4 md:p-5 shadow-soft">
-              <div className="flex items-start justify-between mb-3">
-                <div className={"h-9 w-9 rounded-xl flex items-center justify-center " + k.bg}>
-                  <k.Icon className="h-[18px] w-[18px]" />
-                </div>
-                <Sparkline points={k.points} color={k.color} />
-              </div>
-              <p className="text-[11.5px] md:text-[12.5px] text-muted-foreground">{k.label}</p>
-              <p className="mt-1 text-[24px] md:text-[28px] font-bold tracking-tight leading-none">{k.value}</p>
-              <p className="mt-1.5 text-[11px] md:text-[11.5px] text-emerald-500 font-medium">{k.delta}</p>
+      <p className="px-4 pb-3 text-[13.5px] leading-relaxed">{post.text}</p>
+
+      {post.image && (
+        <img src={post.image} alt={post.project} className="w-full max-h-[380px] object-cover" />
+      )}
+
+      <div className="px-4 py-2.5 flex items-center justify-between text-[11.5px] text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          <span className="h-[18px] w-[18px] rounded-full bg-primary flex items-center justify-center">
+            <ThumbsUp className="h-2.5 w-2.5 text-white fill-white" />
+          </span>
+          {likeCount}
+        </span>
+        <span>
+          {post.comments} {f.commentsLabel}
+        </span>
+      </div>
+
+      <div className="px-2 py-1 border-t border-border flex items-center">
+        <ActionBtn
+          Icon={ThumbsUp}
+          label={liked ? f.liked : f.like}
+          active={liked}
+          onClick={() => setLiked((v) => !v)}
+        />
+        <ActionBtn Icon={MessageCircle} label={f.comment} />
+        <ActionBtn Icon={Share2} label={f.share} />
+      </div>
+
+      <div className="flex items-center gap-2 p-3 border-t border-border">
+        <Avatar
+          initials="BS"
+          size="h-8 w-8"
+          text="text-[10px]"
+          gradient="from-amber-400 to-orange-500"
+        />
+        <input
+          placeholder={f.writeComment}
+          className="flex-1 rounded-full bg-muted px-4 py-2 text-[12.5px] outline-none focus:ring-2 focus:ring-ring/30 placeholder:text-muted-foreground/60"
+        />
+      </div>
+    </div>
+  );
+}
+
+// ---------------- Rail izquierdo ----------------
+function ProfileCard() {
+  return (
+    <div className="rounded-2xl border border-border bg-card shadow-soft overflow-hidden">
+      <div className="h-16 bg-gradient-to-r from-primary to-lavender" />
+      <div className="px-4 pb-4 -mt-7">
+        <Avatar
+          initials="BS"
+          size="h-14 w-14 ring-4 ring-card"
+          text="text-[17px]"
+          gradient="from-amber-400 to-orange-500"
+        />
+        <p className="mt-2 text-[14.5px] font-bold leading-tight">Braian Stortz</p>
+        <p className="text-[11.5px] text-muted-foreground">Desenvolvedor Web · Admin</p>
+        <div className="mt-3 grid grid-cols-3 gap-1 text-center">
+          {[
+            { v: "6", l: "Proyectos" },
+            { v: "48", l: "Ideas" },
+            { v: "128", l: "Archivos" },
+          ].map((s) => (
+            <div key={s.l} className="rounded-lg bg-muted/60 py-2">
+              <p className="text-[15px] font-bold leading-none">{s.v}</p>
+              <p className="text-[9.5px] text-muted-foreground mt-1">{s.l}</p>
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
 
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-[15px] md:text-[16px] font-semibold">{d.groupProjects}</h2>
-            <Link to="/proyectos" className="text-[12px] md:text-[12.5px] text-primary font-medium inline-flex items-center gap-1 hover:underline">
-              {d.viewAll} <ArrowUpRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((p) => (
-              <ProjectCard key={p.id} p={p} labels={{ progress: d.progress, stage: d.stage, lastAct: d.lastAct }} />
-            ))}
-            <NewProjectCard label={d.newProject} sub={d.newProjectSub} />
-          </div>
+const shortcuts: {
+  to: "/proyectos" | "/briefings" | "/ia" | "/archivos";
+  label: keyof ReturnType<typeof useLang>["t"]["nav"];
+  Icon: LucideIcon;
+}[] = [
+  { to: "/proyectos", label: "projects", Icon: FolderKanban },
+  { to: "/briefings", label: "briefings", Icon: Lightbulb },
+  { to: "/ia", label: "ai", Icon: Sparkles },
+  { to: "/archivos", label: "files", Icon: Files },
+];
+
+function Shortcuts() {
+  const { t } = useLang();
+  return (
+    <div className="rounded-2xl border border-border bg-card p-3 shadow-soft">
+      <h3 className="px-2 pt-1 pb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60">
+        {t.feed.shortcuts}
+      </h3>
+      <div className="space-y-0.5">
+        {shortcuts.map((s) => (
+          <Link
+            key={s.to}
+            to={s.to}
+            className="flex items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] font-medium text-foreground/80 hover:bg-muted transition-colors"
+          >
+            <span className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-primary">
+              <s.Icon className="h-[17px] w-[17px]" />
+            </span>
+            {t.nav[s.label]}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StorageCard() {
+  const { t } = useLang();
+  const used = 64;
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+      <div className="flex items-center gap-2 mb-3">
+        <HardDrive className="h-4 w-4 text-primary" />
+        <h3 className="text-[13px] font-semibold">{t.feed.storage}</h3>
+      </div>
+      <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-primary to-lavender rounded-full"
+          style={{ width: used + "%" }}
+        />
+      </div>
+      <p className="mt-2 text-[11px] text-muted-foreground">
+        {t.feed.storageUsed.replace("{used}", "6,4 GB").replace("{total}", "10 GB")}
+      </p>
+    </div>
+  );
+}
+
+// ---------------- Rail derecho ----------------
+const priorityCls: Record<string, string> = {
+  Alta: "bg-red-500/10 text-red-400",
+  Media: "bg-orange-500/10 text-orange-400",
+  Baja: "bg-emerald-500/10 text-emerald-400",
+};
+
+function RightRail() {
+  const { t } = useLang();
+  const d = t.dashboard;
+  return (
+    <div className="hidden xl:flex w-[300px] shrink-0 flex-col gap-4 sticky top-[80px] self-start">
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+        <h3 className="text-[14px] font-semibold mb-3">{d.upcomingMeetings}</h3>
+        <div className="space-y-3">
+          {meetings.map((m, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <Calendar className="h-3.5 w-3.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[12.5px] font-medium leading-tight truncate">{m.label}</p>
+                <p className="text-[11px] text-muted-foreground">{m.date}</p>
+              </div>
+              <div className="flex -space-x-1.5 shrink-0">
+                {m.avatars.map((av, j) => (
+                  <div
+                    key={j}
+                    className="h-6 w-6 rounded-full border-2 border-card bg-gradient-to-br from-primary/80 to-lavender flex items-center justify-center text-[8px] font-bold text-white"
+                  >
+                    {av}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="hidden xl:flex w-[268px] shrink-0 flex-col gap-4">
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-          <h3 className="text-[14px] font-semibold mb-3">{d.recentActivity}</h3>
-          <div className="space-y-3">
-            {activities.map((a, i) => {
-              const meta = activityMeta[a.type];
-              const Icon = meta.Icon;
-              return (
-                <div key={i} className="flex items-start gap-3">
-                  <div className={"h-7 w-7 rounded-lg " + meta.bg + " " + meta.color + " flex items-center justify-center shrink-0 mt-0.5"}>
-                    <Icon className="h-3.5 w-3.5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[12.5px] font-medium leading-tight">{a.label}</p>
-                    <p className="text-[11px] text-muted-foreground">{a.sub}</p>
-                  </div>
-                  <span className="text-[10.5px] text-muted-foreground/60 shrink-0">{a.time}</span>
-                </div>
-              );
-            })}
-          </div>
-          <button className="mt-4 w-full text-[12px] text-primary font-medium hover:underline text-center">{d.viewAllActivity}</button>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-          <h3 className="text-[14px] font-semibold mb-3">{d.pendingTasks}</h3>
-          <div className="space-y-2.5">
-            {tasks.map((tk, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <div className="h-5 w-5 rounded-md border-2 border-border shrink-0 mt-0.5" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[12.5px] font-medium leading-tight">{tk.label}</p>
-                  <p className="text-[11px] text-muted-foreground">{tk.project}</p>
-                </div>
-                <span className={"text-[10.5px] font-semibold px-1.5 py-0.5 rounded-md shrink-0 " + priorityCls[tk.priority]}>
-                  {tk.priority}
-                </span>
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+        <h3 className="text-[14px] font-semibold mb-3">{d.pendingTasks}</h3>
+        <div className="space-y-2.5">
+          {tasks.map((tk, i) => (
+            <div key={i} className="flex items-start gap-3">
+              <div className="h-5 w-5 rounded-md border-2 border-border shrink-0 mt-0.5" />
+              <div className="min-w-0 flex-1">
+                <p className="text-[12.5px] font-medium leading-tight">{tk.label}</p>
+                <p className="text-[11px] text-muted-foreground">{tk.project}</p>
               </div>
-            ))}
-          </div>
-          <button className="mt-4 w-full text-[12px] text-primary font-medium hover:underline text-center">{d.viewAllTasks}</button>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-          <h3 className="text-[14px] font-semibold mb-3">{d.upcomingMeetings}</h3>
-          <div className="space-y-3">
-            {meetings.map((m, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                  <Calendar className="h-3.5 w-3.5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[12.5px] font-medium leading-tight truncate">{m.label}</p>
-                  <p className="text-[11px] text-muted-foreground">{m.date}</p>
-                </div>
-                <div className="flex -space-x-1.5 shrink-0">
-                  {m.avatars.map((av, j) => (
-                    <div key={j} className="h-6 w-6 rounded-full border-2 border-card bg-gradient-to-br from-primary/80 to-lavender flex items-center justify-center text-[8px] font-bold text-white">
-                      {av}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-          <button className="mt-4 w-full text-[12px] text-primary font-medium hover:underline text-center">{d.viewCalendar}</button>
+              <span
+                className={cn(
+                  "text-[10.5px] font-semibold px-1.5 py-0.5 rounded-md shrink-0",
+                  priorityCls[tk.priority],
+                )}
+              >
+                {tk.priority}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
+
+      <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+        <h3 className="text-[14px] font-semibold mb-3">{t.feed.teamOnline}</h3>
+        <div className="space-y-2.5">
+          {teamOnline.map((member) => (
+            <div key={member.initials} className="flex items-center gap-3">
+              <div className="relative shrink-0">
+                <Avatar initials={member.initials} size="h-9 w-9" text="text-[11px]" />
+                <span
+                  className={cn(
+                    "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card",
+                    member.online ? "bg-emerald-500" : "bg-muted-foreground/40",
+                  )}
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[12.5px] font-medium leading-tight truncate">{member.name}</p>
+                <p className="text-[11px] text-muted-foreground">{member.role}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------- Página ----------------
+function Dashboard() {
+  const { t } = useLang();
+  const d = t.dashboard;
+
+  return (
+    <div className="flex gap-5 max-w-[1600px] mx-auto">
+      {/* Rail izquierdo */}
+      <div className="hidden lg:flex w-[240px] shrink-0 flex-col gap-4 sticky top-[80px] self-start">
+        <ProfileCard />
+        <Shortcuts />
+        <StorageCard />
+      </div>
+
+      {/* Feed central */}
+      <div className="flex-1 min-w-0 space-y-4 max-w-[640px] mx-auto">
+        <div className="pt-0.5">
+          <h1 className="text-[20px] md:text-[22px] font-bold tracking-tight">{d.welcome}</h1>
+          <p className="text-[12.5px] text-muted-foreground mt-0.5">{d.subtitle}</p>
+        </div>
+        <KpiStrip />
+        <Composer />
+        <Stories />
+        {feedPosts.map((post) => (
+          <Post key={post.id} post={post} />
+        ))}
+        <button className="w-full rounded-2xl border border-border bg-card py-3 text-[12.5px] font-semibold text-primary hover:bg-muted transition-colors shadow-soft">
+          {t.feed.loadMore}
+        </button>
+      </div>
+
+      {/* Rail derecho */}
+      <RightRail />
     </div>
   );
 }
