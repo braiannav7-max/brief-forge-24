@@ -1,96 +1,144 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import {
   LayoutDashboard, Building2, FolderKanban, Settings,
-  TrendingUp, Lightbulb, FolderArchive, Receipt,
+  TrendingUp, Activity, Briefcase,
 } from "lucide-react";
-import { projects, kpis, type Project } from "@/lib/mock-data";
-import { StatusBadge } from "@/components/app/Badge";
+import { StatusBadge, type ProjectStatus } from "@/components/app/Badge";
 import { AdminGate } from "@/components/admin/AdminGate";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { ResourceManager } from "@/components/admin/ResourceManager";
+import { FormModal, type FieldDef } from "@/components/admin/FormModal";
 import type { AdminSection, ResourceColumn } from "@/components/admin/types";
+import type { Empresa, Proyecto } from "@/lib/admin-types";
+import {
+  getAdminMetricsFn,
+  listEmpresasFn, createEmpresaFn, updateEmpresaFn, deleteEmpresaFn,
+  listProyectosFn, createProyectoFn, updateProyectoFn, deleteProyectoFn,
+} from "@/lib/api/admin.functions";
 
 export const Route = createFileRoute("/_app/admin")({
+  loader: async () => {
+    const [metrics, empresas, proyectos] = await Promise.all([
+      getAdminMetricsFn(),
+      listEmpresasFn(),
+      listProyectosFn(),
+    ]);
+    return { metrics, empresas, proyectos };
+  },
   component: AdminPage,
 });
 
 // ─── Overview ───────────────────────────────────────────────────────────────
-const METRIC_VISUALS = [
-  { icon: Building2,     color: "indigo"  as const },
-  { icon: FolderKanban,  color: "violet"  as const },
-  { icon: Lightbulb,     color: "emerald" as const },
-  { icon: FolderArchive, color: "sky"     as const },
-  { icon: Receipt,       color: "amber"   as const },
-  { icon: TrendingUp,    color: "violet"  as const },
-];
-
-function OverviewSection({ navigate }: { navigate: (id: string) => void }) {
+function OverviewSection({
+  metrics,
+  navigate,
+}: {
+  metrics: { empresas: number; proyectos: number; activos: number; progresoPromedio: number };
+  navigate: (id: string) => void;
+}) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-      {kpis.map((k, i) => {
-        const v = METRIC_VISUALS[i] ?? METRIC_VISUALS[0];
-        const onClick =
-          i === 0 ? () => navigate("empresas") : i === 1 ? () => navigate("proyectos") : undefined;
-        return (
-          <MetricCard
-            key={k.label}
-            icon={v.icon}
-            color={v.color}
-            label={k.label}
-            value={k.value}
-            delta={k.delta}
-            onClick={onClick}
-          />
-        );
-      })}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <MetricCard icon={Building2}   color="indigo"  label="Empresas"          value={metrics.empresas}   onClick={() => navigate("empresas")} />
+      <MetricCard icon={FolderKanban} color="violet" label="Proyectos"         value={metrics.proyectos}  onClick={() => navigate("proyectos")} />
+      <MetricCard icon={Activity}    color="emerald" label="Proyectos activos" value={metrics.activos}    onClick={() => navigate("proyectos")} />
+      <MetricCard icon={TrendingUp}  color="amber"   label="Progreso promedio" value={metrics.progresoPromedio + "%"} />
     </div>
   );
 }
 
-// ─── Empresas (clientes) ──────────────────────────────────────────────────────
-function EmpresasSection() {
-  const [rows, setRows] = useState<Project[]>(projects);
-  const columns: ResourceColumn<Project>[] = [
+// ─── Empresas ─────────────────────────────────────────────────────────────────
+const EMPRESA_FIELDS: FieldDef[] = [
+  { name: "name", label: "Empresa", required: true, placeholder: "Nombre de la empresa" },
+  { name: "contact", label: "Contacto", placeholder: "Persona de contacto" },
+  { name: "email", label: "Email", type: "email", placeholder: "correo@empresa.com" },
+  { name: "phone", label: "Teléfono", placeholder: "+55 ..." },
+  { name: "status", label: "Estado", type: "select", options: [
+    { value: "Activo", label: "Activo" }, { value: "Inactivo", label: "Inactivo" },
+  ] },
+];
+
+function EmpresasSection({ rows }: { rows: Empresa[] }) {
+  const router = useRouter();
+  const [modal, setModal] = useState<{ row: Empresa | null } | null>(null);
+
+  const columns: ResourceColumn<Empresa>[] = [
+    { key: "name", label: "Empresa", render: (e) => <span className="font-medium">{e.name}</span> },
+    { key: "contact", label: "Contacto" },
+    { key: "email", label: "Email", render: (e) => <span className="text-muted-foreground">{e.email}</span> },
+    { key: "phone", label: "Teléfono", render: (e) => <span className="text-muted-foreground">{e.phone}</span> },
     {
-      key: "name",
-      label: "Empresa",
-      render: (p) => (
-        <div className="flex items-center gap-3">
-          <div className={`h-8 w-8 rounded-lg bg-gradient-to-br ${p.accent} flex items-center justify-center text-white text-[11px] font-semibold`}>
-            {p.initials}
-          </div>
-          <span className="font-medium">{p.name}</span>
-        </div>
+      key: "status",
+      label: "Estado",
+      render: (e) => (
+        <span className={`rounded-full px-2 py-0.5 text-[11px] ${e.status === "Activo" ? "bg-emerald-500/10 text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+          {e.status}
+        </span>
       ),
     },
-    { key: "contact", label: "Contacto" },
-    { key: "email", label: "Email", render: (p) => <span className="text-muted-foreground">{p.email}</span> },
-    { key: "status", label: "Estado", render: (p) => <StatusBadge status={p.status} /> },
-    { key: "updated", label: "Última actividad", render: (p) => <span className="text-muted-foreground">{p.updated}</span> },
   ];
+
   return (
-    <ResourceManager
-      title="Empresas"
-      description="Listado de empresas y contactos."
-      createLabel="Nueva empresa"
-      columns={columns}
-      rows={rows}
-      onCreate={() => alert("Abrir alta de empresa")}
-      onEdit={(p) => alert(`Editar ${p.name}`)}
-      onDelete={(p) => setRows((prev) => prev.filter((x) => x.id !== p.id))}
-    />
+    <>
+      <ResourceManager
+        title="Empresas"
+        description="Listado de empresas y contactos — guardado en Supabase."
+        createLabel="Nueva empresa"
+        columns={columns}
+        rows={rows}
+        onCreate={() => setModal({ row: null })}
+        onEdit={(e) => setModal({ row: e })}
+        onDelete={async (e) => {
+          if (!confirm(`¿Eliminar "${e.name}"?`)) return;
+          await deleteEmpresaFn({ data: { id: e.id } });
+          router.invalidate();
+        }}
+      />
+      {modal && (
+        <FormModal
+          title={modal.row ? "Editar empresa" : "Nueva empresa"}
+          fields={EMPRESA_FIELDS}
+          initial={{
+            name: modal.row?.name ?? "",
+            contact: modal.row?.contact ?? "",
+            email: modal.row?.email ?? "",
+            phone: modal.row?.phone ?? "",
+            status: modal.row?.status ?? "Activo",
+          }}
+          onClose={() => setModal(null)}
+          onSubmit={async (v) => {
+            if (modal.row) await updateEmpresaFn({ data: { id: modal.row.id, patch: v } });
+            else await createEmpresaFn({ data: v });
+            router.invalidate();
+          }}
+        />
+      )}
+    </>
   );
 }
 
 // ─── Proyectos ────────────────────────────────────────────────────────────────
-function ProyectosSection() {
-  const [rows, setRows] = useState<Project[]>(projects);
-  const columns: ResourceColumn<Project>[] = [
+const PROYECTO_FIELDS: FieldDef[] = [
+  { name: "name", label: "Proyecto", required: true, placeholder: "Nombre del proyecto" },
+  { name: "category", label: "Categoría", placeholder: "Rubro / tipo" },
+  { name: "status", label: "Estado", type: "select", options: [
+    { value: "Briefing", label: "Briefing" }, { value: "Planeación", label: "Planeación" },
+    { value: "Diseño", label: "Diseño" }, { value: "Desarrollo", label: "Desarrollo" },
+    { value: "Contenido", label: "Contenido" }, { value: "Finalizado", label: "Finalizado" },
+  ] },
+  { name: "progress", label: "Progreso (%)", type: "number", placeholder: "0-100" },
+  { name: "budget", label: "Presupuesto", placeholder: "R$ ..." },
+];
+
+function ProyectosSection({ rows }: { rows: Proyecto[] }) {
+  const router = useRouter();
+  const [modal, setModal] = useState<{ row: Proyecto | null } | null>(null);
+
+  const columns: ResourceColumn<Proyecto>[] = [
     { key: "name", label: "Proyecto", render: (p) => <span className="font-medium">{p.name}</span> },
     { key: "category", label: "Categoría", render: (p) => <span className="text-muted-foreground">{p.category}</span> },
-    { key: "status", label: "Estado", render: (p) => <StatusBadge status={p.status} /> },
+    { key: "status", label: "Estado", render: (p) => <StatusBadge status={p.status as ProjectStatus} /> },
     {
       key: "progress",
       label: "Progreso",
@@ -105,28 +153,55 @@ function ProyectosSection() {
     },
     { key: "budget", label: "Presupuesto", align: "right" },
   ];
+
   return (
-    <ResourceManager
-      title="Proyectos"
-      description="Todos los proyectos del workspace."
-      createLabel="Nuevo proyecto"
-      columns={columns}
-      rows={rows}
-      onCreate={() => alert("Abrir alta de proyecto")}
-      onEdit={(p) => alert(`Editar ${p.name}`)}
-      onDelete={(p) => setRows((prev) => prev.filter((x) => x.id !== p.id))}
-    />
+    <>
+      <ResourceManager
+        title="Proyectos"
+        description="Todos los proyectos del workspace — guardado en Supabase."
+        createLabel="Nuevo proyecto"
+        columns={columns}
+        rows={rows}
+        onCreate={() => setModal({ row: null })}
+        onEdit={(p) => setModal({ row: p })}
+        onDelete={async (p) => {
+          if (!confirm(`¿Eliminar "${p.name}"?`)) return;
+          await deleteProyectoFn({ data: { id: p.id } });
+          router.invalidate();
+        }}
+      />
+      {modal && (
+        <FormModal
+          title={modal.row ? "Editar proyecto" : "Nuevo proyecto"}
+          fields={PROYECTO_FIELDS}
+          initial={{
+            name: modal.row?.name ?? "",
+            category: modal.row?.category ?? "",
+            status: modal.row?.status ?? "Briefing",
+            progress: String(modal.row?.progress ?? 0),
+            budget: modal.row?.budget ?? "",
+          }}
+          onClose={() => setModal(null)}
+          onSubmit={async (v) => {
+            const patch = {
+              name: v.name,
+              category: v.category,
+              status: v.status,
+              progress: Math.max(0, Math.min(100, parseInt(v.progress || "0", 10) || 0)),
+              budget: v.budget,
+            };
+            if (modal.row) await updateProyectoFn({ data: { id: modal.row.id, patch } });
+            else await createProyectoFn({ data: patch });
+            router.invalidate();
+          }}
+        />
+      )}
+    </>
   );
 }
 
 // ─── Configuración ────────────────────────────────────────────────────────────
 function ConfigSection() {
-  const fields = [
-    ["Nombre", "Braian Aranda"],
-    ["Email", "braian@aiclientportal.com"],
-    ["Empresa", "AI Client Portal"],
-    ["Rol", "Administrador"],
-  ];
   const prefs: [string, boolean][] = [
     ["Notificaciones por email", true],
     ["Resúmenes semanales con IA", true],
@@ -142,14 +217,6 @@ function ConfigSection() {
             <div className="text-[14px] font-medium">Braian Aranda</div>
             <div className="text-[12px] text-muted-foreground">Administrador del workspace</div>
           </div>
-        </div>
-        <div className="grid sm:grid-cols-2 gap-4 pt-2">
-          {fields.map(([label, value]) => (
-            <div key={label}>
-              <label className="text-[11.5px] text-muted-foreground">{label}</label>
-              <div className="mt-1 rounded-xl border border-border bg-background px-3.5 py-2.5 text-[13px]">{value}</div>
-            </div>
-          ))}
         </div>
       </div>
 
@@ -170,15 +237,18 @@ function ConfigSection() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 function AdminPage() {
+  const { metrics, empresas, proyectos } = Route.useLoaderData();
+
   const sections: AdminSection[] = [
-    { id: "overview",  label: "Resumen",       icon: LayoutDashboard, render: ({ navigate }) => <OverviewSection navigate={navigate} /> },
-    { id: "empresas",  label: "Empresas",      icon: Building2,        render: () => <EmpresasSection /> },
-    { id: "proyectos", label: "Proyectos",     icon: FolderKanban,     render: () => <ProyectosSection /> },
+    { id: "overview",  label: "Resumen",       icon: LayoutDashboard, render: ({ navigate }) => <OverviewSection metrics={metrics} navigate={navigate} /> },
+    { id: "empresas",  label: "Empresas",      icon: Building2,        render: () => <EmpresasSection rows={empresas} /> },
+    { id: "proyectos", label: "Proyectos",     icon: Briefcase,        render: () => <ProyectosSection rows={proyectos} /> },
     { id: "config",    label: "Configuración", icon: Settings,         render: () => <ConfigSection /> },
   ];
+
   return (
     <AdminGate>
-      <AdminPanel title="Panel de administración" subtitle="Gestión central del workspace" sections={sections} />
+      <AdminPanel title="Panel de administración" subtitle="Gestión central del workspace · Supabase" sections={sections} />
     </AdminGate>
   );
 }
