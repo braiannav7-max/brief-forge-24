@@ -2,14 +2,14 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, FolderKanban, Lightbulb, FolderArchive, Receipt,
   Calendar, MessageSquare, CheckSquare, Files, BarChart3,
-  Brain, Sparkles, FileText, Map, MoreHorizontal, X,
+  Brain, Sparkles, FileText, Map, MoreHorizontal, X, ShieldCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
 
-type ValidTo = "/dashboard" | "/proyectos" | "/briefings" | "/archivos" | "/documentos" | "/ia";
+type ValidTo = "/dashboard" | "/proyectos" | "/briefings" | "/archivos" | "/documentos" | "/ia" | "/admin";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -141,6 +141,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
           <BtnItem label={t.nav.messages}  icon={MessageSquare} />
           <BtnItem label={t.nav.tasks}     icon={CheckSquare} />
           <LinkItem to="/documentos" label={t.nav.documents}  icon={Files}           active={active("/documentos")} onClick={onClose} />
+          <LinkItem to="/admin"      label={t.nav.admin}      icon={ShieldCheck}     active={active("/admin")} onClick={onClose} />
           <BtnItem label={t.nav.reports}   icon={BarChart3} />
 
           <SectionLabel>{t.nav.aiTools}</SectionLabel>
