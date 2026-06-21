@@ -45,7 +45,8 @@ export const projects: Project[] = [
     initials: "BAH",
     accent: "from-[oklch(0.58_0.19_28)] to-[oklch(0.5_0.2_22)]",
     logoClass: "bg-red-600 text-white",
-    coverImage: "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=85",
+    coverImage:
+      "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=85",
     hasVideo: true,
     team: ["BS", "MV", "LC", "+2"],
   },
@@ -68,7 +69,8 @@ export const projects: Project[] = [
     initials: "M",
     accent: "from-[oklch(0.63_0.2_305)] to-[oklch(0.58_0.18_245)]",
     logoClass: "bg-black text-amber-300 ring-1 ring-amber-400/40",
-    coverImage: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=1200&q=85",
+    coverImage:
+      "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?auto=format&fit=crop&w=1200&q=85",
     hasVideo: true,
     team: ["BS", "AG", "FR", "+3"],
   },
@@ -91,7 +93,8 @@ export const projects: Project[] = [
     initials: "silk",
     accent: "from-[oklch(0.78_0.06_225)] to-[oklch(0.58_0.1_230)]",
     logoClass: "bg-white text-slate-900",
-    coverImage: "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=85",
+    coverImage:
+      "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=85",
     hasVideo: true,
     team: ["BS", "MV", "RN", "+4"],
   },
@@ -114,7 +117,8 @@ export const projects: Project[] = [
     initials: "BB",
     accent: "from-[oklch(0.72_0.14_52)] to-[oklch(0.52_0.13_35)]",
     logoClass: "bg-white text-orange-900",
-    coverImage: "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1200&q=85",
+    coverImage:
+      "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1200&q=85",
     hasVideo: true,
     team: ["BS", "LC", "RN", "+2"],
   },
@@ -137,7 +141,8 @@ export const projects: Project[] = [
     initials: "B",
     accent: "from-[oklch(0.65_0.1_215)] to-[oklch(0.45_0.08_230)]",
     logoClass: "bg-black text-white ring-1 ring-white/20",
-    coverImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85",
+    coverImage:
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85",
     team: ["BS", "MV", "AG", "+2"],
   },
   {
@@ -159,7 +164,8 @@ export const projects: Project[] = [
     initials: "MK",
     accent: "from-[oklch(0.5_0.05_70)] to-[oklch(0.25_0.03_65)]",
     logoClass: "bg-zinc-950 text-white ring-1 ring-white/20",
-    coverImage: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=1200&q=85",
+    coverImage:
+      "https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=1200&q=85",
     hasVideo: true,
     team: ["BS", "FR", "LC", "+1"],
     siteUrl: "https://mondo-khan.vercel.app/",
@@ -176,37 +182,77 @@ export const kpis = [
 ];
 
 export const documents = [
-  { name: "Blueprint del Proyecto",  date: "15 May 2024", size: "2.4 MB" },
-  { name: "Resumen Ejecutivo",        date: "15 May 2024", size: "840 KB" },
-  { name: "Arquitectura Web",         date: "15 May 2024", size: "1.6 MB" },
-  { name: "SEO Inicial",              date: "15 May 2024", size: "612 KB" },
-  { name: "Propuesta Comercial",      date: "15 May 2024", size: "1.1 MB" },
+  { name: "Blueprint del Proyecto", date: "15 May 2024", size: "2.4 MB" },
+  { name: "Resumen Ejecutivo", date: "15 May 2024", size: "840 KB" },
+  { name: "Arquitectura Web", date: "15 May 2024", size: "1.6 MB" },
+  { name: "SEO Inicial", date: "15 May 2024", size: "612 KB" },
+  { name: "Propuesta Comercial", date: "15 May 2024", size: "1.1 MB" },
 ];
 
 export const roadmap = [
-  { label: "Briefing recibido", status: "done",    date: "10 May 2026" },
-  { label: "Análisis IA",       status: "done",    date: "11 May 2026" },
-  { label: "Diseño UX",         status: "current", date: "En progreso" },
-  { label: "Diseño UI",         status: "todo",    date: "Pendiente" },
-  { label: "Desarrollo",        status: "todo",    date: "Pendiente" },
-  { label: "Testing",           status: "todo",    date: "Pendiente" },
-  { label: "Entrega",           status: "todo",    date: "Pendiente" },
+  { label: "Briefing recibido", status: "done", date: "10 May 2026" },
+  { label: "Análisis IA", status: "done", date: "11 May 2026" },
+  { label: "Diseño UX", status: "current", date: "En progreso" },
+  { label: "Diseño UI", status: "todo", date: "Pendiente" },
+  { label: "Desarrollo", status: "todo", date: "Pendiente" },
+  { label: "Testing", status: "todo", date: "Pendiente" },
+  { label: "Entrega", status: "todo", date: "Pendiente" },
 ];
 
 export const chat = [
-  { who: "Braian (Tú)", time: "10:24 AM", me: true,  text: "Hola equipo, ya completé la sección de objetivos. Por favor revisen." },
-  { who: "Cliente",     time: "10:28 AM", me: false, text: "Perfecto Braian, lo estamos revisando ahora. Te confirmo si necesitamos algo más." },
-  { who: "Braian (Tú)", time: "10:30 AM", me: true,  text: "Genial, también agregué algunas referencias en la sección de identidad visual." },
+  {
+    who: "Braian (Tú)",
+    time: "10:24 AM",
+    me: true,
+    text: "Hola equipo, ya completé la sección de objetivos. Por favor revisen.",
+  },
+  {
+    who: "Cliente",
+    time: "10:28 AM",
+    me: false,
+    text: "Perfecto Braian, lo estamos revisando ahora. Te confirmo si necesitamos algo más.",
+  },
+  {
+    who: "Braian (Tú)",
+    time: "10:30 AM",
+    me: true,
+    text: "Genial, también agregué algunas referencias en la sección de identidad visual.",
+  },
 ];
 
 export type ActivityType = "briefing" | "file" | "comment" | "budget" | "idea";
 
 export const activities = [
-  { type: "briefing" as ActivityType, label: "Nuevo briefing completado", sub: "BAH Gastronomía", time: "Hace 2h" },
-  { type: "file" as ActivityType, label: "Archivo subido", sub: "Logo_nuevo_bah.png", time: "Hace 4h" },
-  { type: "comment" as ActivityType, label: "Comentario agregado", sub: "Movida Búzios", time: "Hace 6h" },
-  { type: "budget" as ActivityType, label: "Presupuesto enviado", sub: "Silk Beach Club", time: "Hace 1d" },
-  { type: "idea" as ActivityType, label: "Idea aprobada", sub: "Buda Beach Búzios", time: "Hace 1d" },
+  {
+    type: "briefing" as ActivityType,
+    label: "Nuevo briefing completado",
+    sub: "BAH Gastronomía",
+    time: "Hace 2h",
+  },
+  {
+    type: "file" as ActivityType,
+    label: "Archivo subido",
+    sub: "Logo_nuevo_bah.png",
+    time: "Hace 4h",
+  },
+  {
+    type: "comment" as ActivityType,
+    label: "Comentario agregado",
+    sub: "Movida Búzios",
+    time: "Hace 6h",
+  },
+  {
+    type: "budget" as ActivityType,
+    label: "Presupuesto enviado",
+    sub: "Silk Beach Club",
+    time: "Hace 1d",
+  },
+  {
+    type: "idea" as ActivityType,
+    label: "Idea aprobada",
+    sub: "Buda Beach Búzios",
+    time: "Hace 1d",
+  },
 ];
 
 export type TaskPriority = "Alta" | "Media" | "Baja";
@@ -215,10 +261,118 @@ export const tasks = [
   { label: "Revisar contenido home", project: "BAH Gastronomía", priority: "Alta" as TaskPriority },
   { label: "Aprobar presupuesto", project: "Silk Beach Club", priority: "Media" as TaskPriority },
   { label: "Subir fotos del local", project: "Movida Búzios", priority: "Media" as TaskPriority },
-  { label: "Revisión de menú digital", project: "Buda Beach Búzios", priority: "Baja" as TaskPriority },
+  {
+    label: "Revisión de menú digital",
+    project: "Buda Beach Búzios",
+    priority: "Baja" as TaskPriority,
+  },
 ];
 
 export const meetings = [
   { label: "Reunión BAH Gastronomía", date: "14 Jun, 15:00", avatars: ["BS", "MV", "+2"] },
   { label: "Reunión Movida Búzios", date: "15 Jun, 16:00", avatars: ["BS", "AG"] },
+];
+
+// ---------- Feed estilo Facebook (dashboard principal) ----------
+export type FeedPostType = "briefing" | "file" | "comment" | "budget" | "idea" | "milestone";
+
+export type FeedPost = {
+  id: string;
+  type: FeedPostType;
+  author: string;
+  authorInitials: string;
+  authorRole: string;
+  project: string;
+  projectInitials: string;
+  logoClass: string;
+  time: string;
+  text: string;
+  image?: string;
+  likes: number;
+  comments: number;
+};
+
+export const feedPosts: FeedPost[] = [
+  {
+    id: "p1",
+    type: "milestone",
+    author: "Braian Stortz",
+    authorInitials: "BS",
+    authorRole: "Desenvolvedor Web",
+    project: "BAH Gastronomía",
+    projectInitials: "BAH",
+    logoClass: "bg-red-600 text-white",
+    time: "Hace 38 min",
+    text: "¡El diseño de la home de BAH quedó aprobado! 🎉 Pasamos a desarrollo. Gracias al equipo por el laburo fino con la identidad visual.",
+    image:
+      "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=85",
+    likes: 14,
+    comments: 5,
+  },
+  {
+    id: "p2",
+    type: "briefing",
+    author: "Sistema",
+    authorInitials: "IA",
+    authorRole: "Automatización",
+    project: "Buda Beach Búzios",
+    projectInitials: "BB",
+    logoClass: "bg-white text-orange-900",
+    time: "Hace 2 h",
+    text: "Nuevo briefing completado al 100%. La IA ya generó un workspace sugerido por rubro: gastronomía + reservas + WhatsApp.",
+    likes: 6,
+    comments: 2,
+  },
+  {
+    id: "p3",
+    type: "file",
+    author: "Mariana Vega",
+    authorInitials: "MV",
+    authorRole: "Diseño",
+    project: "Silk Beach Club",
+    projectInitials: "silk",
+    logoClass: "bg-white text-slate-900",
+    time: "Hace 4 h",
+    text: "Subí las fotos profesionales del beach service. Quedaron espectaculares para el hero del sitio. 📸",
+    image:
+      "https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=85",
+    likes: 21,
+    comments: 8,
+  },
+  {
+    id: "p4",
+    type: "budget",
+    author: "Braian Stortz",
+    authorInitials: "BS",
+    authorRole: "Desenvolvedor Web",
+    project: "Silk Beach Club",
+    projectInitials: "silk",
+    logoClass: "bg-white text-slate-900",
+    time: "Hace 1 d",
+    text: "Presupuesto enviado a Silk (R$ 26.400). Incluye ecommerce, reservas y panel admin. A la espera de aprobación. 🤞",
+    likes: 4,
+    comments: 1,
+  },
+  {
+    id: "p5",
+    type: "idea",
+    author: "Agustín Ríos",
+    authorInitials: "AG",
+    authorRole: "Marketing",
+    project: "Movida Búzios",
+    projectInitials: "M",
+    logoClass: "bg-black text-amber-300 ring-1 ring-amber-400/40",
+    time: "Hace 1 d",
+    text: "Idea aprobada: scroll cinematográfico con video de fondo para la sección de mixología. Va a quedar muy premium. 🍸",
+    likes: 17,
+    comments: 6,
+  },
+];
+
+export const teamOnline = [
+  { name: "Mariana Vega", role: "Diseño", initials: "MV", online: true },
+  { name: "Agustín Ríos", role: "Marketing", initials: "AG", online: true },
+  { name: "Lucía Coria", role: "Contenido", initials: "LC", online: true },
+  { name: "Franco Ruiz", role: "Desarrollo", initials: "FR", online: false },
+  { name: "Renata Núñez", role: "Cuentas", initials: "RN", online: false },
 ];
