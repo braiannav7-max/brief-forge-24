@@ -19,6 +19,7 @@ import { Route as AppConfiguracionRouteImport } from './routes/_app.configuracio
 import { Route as AppClientesRouteImport } from './routes/_app.clientes'
 import { Route as AppBriefingsRouteImport } from './routes/_app.briefings'
 import { Route as AppArchivosRouteImport } from './routes/_app.archivos'
+import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as AppProyectosIndexRouteImport } from './routes/_app.proyectos.index'
 import { Route as AppProyectosIdRouteImport } from './routes/_app.proyectos.$id'
 
@@ -71,6 +72,11 @@ const AppArchivosRoute = AppArchivosRouteImport.update({
   path: '/archivos',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProyectosIndexRoute = AppProyectosIndexRouteImport.update({
   id: '/proyectos/',
   path: '/proyectos/',
@@ -84,6 +90,7 @@ const AppProyectosIdRoute = AppProyectosIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AppAdminRoute
   '/archivos': typeof AppArchivosRoute
   '/briefings': typeof AppBriefingsRoute
   '/clientes': typeof AppClientesRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AppAdminRoute
   '/archivos': typeof AppArchivosRoute
   '/briefings': typeof AppBriefingsRoute
   '/clientes': typeof AppClientesRoute
@@ -112,6 +120,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/_app/admin': typeof AppAdminRoute
   '/_app/archivos': typeof AppArchivosRoute
   '/_app/briefings': typeof AppBriefingsRoute
   '/_app/clientes': typeof AppClientesRoute
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/archivos'
     | '/briefings'
     | '/clientes'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/archivos'
     | '/briefings'
     | '/clientes'
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_app'
+    | '/_app/admin'
     | '/_app/archivos'
     | '/_app/briefings'
     | '/_app/clientes'
@@ -244,6 +256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppArchivosRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/proyectos/': {
       id: '/_app/proyectos/'
       path: '/proyectos'
@@ -262,6 +281,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAdminRoute: typeof AppAdminRoute
   AppArchivosRoute: typeof AppArchivosRoute
   AppBriefingsRoute: typeof AppBriefingsRoute
   AppClientesRoute: typeof AppClientesRoute
@@ -274,6 +294,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAdminRoute: AppAdminRoute,
   AppArchivosRoute: AppArchivosRoute,
   AppBriefingsRoute: AppBriefingsRoute,
   AppClientesRoute: AppClientesRoute,
