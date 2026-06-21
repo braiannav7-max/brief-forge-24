@@ -86,19 +86,19 @@ function rowToBriefing(row: Record<string, unknown>): BriefingData {
   };
 }
 async function supaRead(token: string): Promise<BriefingData | null> {
-  const { data, error } = await supa().from("briefings").select("*").eq("token", token).maybeSingle();
+  const { data, error } = await supa().from("vc_briefings").select("*").eq("token", token).maybeSingle();
   if (error) throw error;
   return data ? rowToBriefing(data) : null;
 }
 async function supaWrite(d: BriefingData): Promise<void> {
-  const { error } = await supa().from("briefings").upsert(
+  const { error } = await supa().from("vc_briefings").upsert(
     { token: d.token, company_slug: d.companySlug, answers: d.answers, submitted: d.submitted, created_at: d.createdAt, updated_at: d.updatedAt },
     { onConflict: "token" },
   );
   if (error) throw error;
 }
 async function supaList(): Promise<BriefingData[]> {
-  const { data, error } = await supa().from("briefings").select("*");
+  const { data, error } = await supa().from("vc_briefings").select("*");
   if (error) throw error;
   return (data ?? []).map(rowToBriefing);
 }
