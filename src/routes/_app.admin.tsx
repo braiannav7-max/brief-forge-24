@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { projects, kpis, type Project } from "@/lib/mock-data";
 import { StatusBadge } from "@/components/app/Badge";
+import { AdminGate } from "@/components/admin/AdminGate";
 import { AdminPanel } from "@/components/admin/AdminPanel";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { ResourceManager } from "@/components/admin/ResourceManager";
@@ -175,5 +176,9 @@ function AdminPage() {
     { id: "proyectos", label: "Proyectos",     icon: FolderKanban,     render: () => <ProyectosSection /> },
     { id: "config",    label: "Configuración", icon: Settings,         render: () => <ConfigSection /> },
   ];
-  return <AdminPanel title="Panel de administración" subtitle="Gestión central del workspace" sections={sections} />;
+  return (
+    <AdminGate>
+      <AdminPanel title="Panel de administración" subtitle="Gestión central del workspace" sections={sections} />
+    </AdminGate>
+  );
 }
