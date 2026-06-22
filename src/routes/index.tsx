@@ -35,8 +35,8 @@ function Landing() {
             <a href="#recursos" className="hover:text-foreground">Recursos</a>
           </nav>
           <div className="ml-auto flex items-center gap-2">
-            <Link to="/dashboard" className="px-4 py-2 rounded-lg text-[13.5px] font-medium text-foreground hover:bg-muted">Iniciar sesión</Link>
-            <Link to="/dashboard" className="px-4 py-2 rounded-lg text-[13.5px] font-medium bg-primary text-primary-foreground hover:opacity-90 transition shadow-soft">
+            <Link to="/login" className="px-4 py-2 rounded-lg text-[13.5px] font-medium text-foreground hover:bg-muted">Iniciar sesión</Link>
+            <Link to="/register" className="px-4 py-2 rounded-lg text-[13.5px] font-medium bg-primary text-primary-foreground hover:opacity-90 transition shadow-soft">
               Solicitar acceso
             </Link>
           </div>

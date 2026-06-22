@@ -1,13 +1,14 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useRouter } from "@tanstack/react-router";
 import {
   LayoutDashboard, FolderKanban, Lightbulb, FolderArchive, Receipt,
   Calendar, MessageSquare, CheckSquare, Files, BarChart3,
-  Brain, Sparkles, FileText, Map, MoreHorizontal, X, ShieldCheck,
+  Brain, Sparkles, FileText, Map, LogOut, X, ShieldCheck,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils";
 import { useLang } from "@/lib/i18n";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 type ValidTo = "/dashboard" | "/proyectos" | "/briefings" | "/archivos" | "/documentos" | "/ia" | "/admin";
 
@@ -97,14 +98,27 @@ function ProgressCircle({ value = 67, label, sub }: { value?: number; label: str
 
 export function AppSidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const router = useRouter();
   const { t } = useLang();
+  const { user, signOut } = useAuth();
 
   const active = (to: string) =>
     to === "/dashboard" ? pathname === "/dashboard" : pathname === to || pathname.startsWith(to + "/");
 
+  const initials = user?.email
+    ? user.email.substring(0, 2).toUpperCase()
+    : "??";
+
+  const displayName = user?.email?.split("@")[0] ?? "Usuario";
+  const emailDomain = user?.email?.split("@")[1] ?? "";
+
+  const handleLogout = async () => {
+    await signOut();
+    router.navigate({ to: "/login" });
+  };
+
   return (
     <>
-      {/* Mobile backdrop */}
       {isOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/60 md:hidden"
@@ -154,17 +168,23 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
 
         <ProgressCircle value={67} label={t.nav.generalProgress} sub={t.nav.averageAdvance} />
 
-        <div className="border-t border-sidebar-border p-3 shrink-0">
+        <div className="border-t border-sidebar-border p-3 shrink-0 space-y-1">
           <div className="flex items-center gap-3 rounded-lg p-2 hover:bg-sidebar-accent transition cursor-pointer">
             <div className="h-9 w-9 shrink-0 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-sm font-bold select-none">
-              BS
+              {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[13px] font-semibold truncate">Braian Stortz</div>
-              <div className="text-[11px] text-muted-foreground truncate">Desenvolvedor Web</div>
+              <div className="text-[13px] font-semibold truncate">{displayName}</div>
+              <div className="text-[11px] text-muted-foreground truncate">{emailDomain || "Usuario"}</div>
             </div>
-            <MoreHorizontal className="h-4 w-4 text-muted-foreground shrink-0" />
           </div>
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium text-sidebar-foreground/65 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all"
+          >
+            <LogOut className="h-[17px] w-[17px] shrink-0" />
+            <span>Cerrar sesión</span>
+          </button>
         </div>
       </aside>
     </>

@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, ShieldX } from "lucide-react";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 const ADMIN_USER = import.meta.env.VITE_ADMIN_USER ?? "";
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD ?? "";
@@ -9,28 +10,39 @@ function isUnlocked(): boolean {
   return typeof window !== "undefined" && sessionStorage.getItem(STORAGE_KEY) === "1";
 }
 
-/**
- * Gate de acceso al panel (usuario + contraseña). Lee credenciales de env
- * (VITE_ADMIN_USER / VITE_ADMIN_PASSWORD) — nunca hardcodeadas en el repo.
- *
- * ⚠️ Es protección de UI, no de datos: las VITE_* quedan en el bundle. La
- * seguridad real va en Supabase Auth + RLS (siguiente fase).
- */
+function isAdminByEnv(user: string, pass: string): boolean {
+  return !!ADMIN_USER && !!ADMIN_PASSWORD && user.trim() === ADMIN_USER && pass === ADMIN_PASSWORD;
+}
+
 export function AdminGate({ children }: { children: ReactNode }) {
+  const { user: authUser } = useAuth();
   const [unlocked, setUnlocked] = useState(isUnlocked);
-  const [user, setUser] = useState("");
-  const [pass, setPass] = useState("");
+  const [formUser, setFormUser] = useState("");
+  const [formPass, setFormPass] = useState("");
   const [err, setErr] = useState(false);
 
-  if (unlocked) return <>{children}</>;
+  const isAdminByMeta = authUser?.user_metadata?.role === "admin";
+
+  if (unlocked || isAdminByMeta) return <>{children}</>;
+
+  if (authUser && !isAdminByMeta) {
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <div className="w-full max-w-sm rounded-2xl border border-border bg-card shadow-soft p-7 text-center">
+          <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-red-500/10 text-red-400">
+            <ShieldX className="h-6 w-6" />
+          </span>
+          <h1 className="mt-4 text-[18px] font-bold tracking-tight">Acceso restringido</h1>
+          <p className="mt-2 text-[13px] text-muted-foreground">
+            No tenés permisos de administrador. Contactá al administrador del workspace.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const submit = () => {
-    const ok =
-      !!ADMIN_USER &&
-      !!ADMIN_PASSWORD &&
-      user.trim() === ADMIN_USER &&
-      pass === ADMIN_PASSWORD;
-    if (ok) {
+    if (isAdminByEnv(formUser, formPass)) {
       sessionStorage.setItem(STORAGE_KEY, "1");
       setUnlocked(true);
     } else {
@@ -56,19 +68,19 @@ export function AdminGate({ children }: { children: ReactNode }) {
         <div className="mt-5 space-y-2.5 text-left">
           <input
             type="text"
-            value={user}
+            value={formUser}
             autoFocus
             autoComplete="username"
-            onChange={(e) => { setUser(e.target.value); setErr(false); }}
+            onChange={(e) => { setFormUser(e.target.value); setErr(false); }}
             onKeyDown={(e) => e.key === "Enter" && submit()}
             placeholder="Usuario"
             className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-[13px] focus:border-primary/50 focus:outline-none"
           />
           <input
             type="password"
-            value={pass}
+            value={formPass}
             autoComplete="current-password"
-            onChange={(e) => { setPass(e.target.value); setErr(false); }}
+            onChange={(e) => { setFormPass(e.target.value); setErr(false); }}
             onKeyDown={(e) => e.key === "Enter" && submit()}
             placeholder="Contraseña"
             className={`w-full rounded-xl border bg-background px-3.5 py-2.5 text-[13px] focus:outline-none ${
