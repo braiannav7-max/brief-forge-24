@@ -10,19 +10,29 @@ export const Route = createFileRoute("/_app")({
 });
 
 function AuthGuard({ children }: { children: ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, authAvailable, authError } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && authAvailable) {
       router.navigate({ to: "/login" });
     }
-  }, [user, loading, router]);
+  }, [user, loading, authAvailable, router]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!authAvailable) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 text-center">
+        <p className="text-muted-foreground text-[13px] max-w-sm">
+          {authError ?? "Auth no disponible."} — agregalas en tu <code className="bg-muted px-1.5 py-0.5 rounded text-[12px]">.env</code> y reiniciá el servidor.
+        </p>
       </div>
     );
   }

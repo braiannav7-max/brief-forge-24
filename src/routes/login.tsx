@@ -8,7 +8,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-  const { signIn, user, loading } = useAuth();
+  const { signIn, user, loading, authAvailable, authError } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,6 +35,16 @@ function LoginPage() {
       router.navigate({ to: "/dashboard" });
     }
   };
+
+  if (!authAvailable) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 text-center">
+        <p className="text-muted-foreground text-[13px] max-w-sm">
+          {authError ?? "Auth no disponible."} — agregalas en tu <code className="bg-muted px-1.5 py-0.5 rounded text-[12px]">.env</code> y reiniciá el servidor.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">

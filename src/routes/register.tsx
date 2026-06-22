@@ -8,7 +8,7 @@ export const Route = createFileRoute("/register")({
 });
 
 function RegisterPage() {
-  const { signUp, user, loading } = useAuth();
+  const { signUp, user, loading, authAvailable, authError } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +19,16 @@ function RegisterPage() {
   if (!loading && user) {
     router.navigate({ to: "/dashboard" });
     return null;
+  }
+
+  if (!authAvailable) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 text-center">
+        <p className="text-muted-foreground text-[13px] max-w-sm">
+          {authError ?? "Auth no disponible."} — agregalas en tu <code className="bg-muted px-1.5 py-0.5 rounded text-[12px]">.env</code> y reiniciá el servidor.
+        </p>
+      </div>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
