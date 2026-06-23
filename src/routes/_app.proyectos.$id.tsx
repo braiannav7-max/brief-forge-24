@@ -6,10 +6,19 @@ import { getBriefing } from "@/lib/api/briefings.functions";
 import { briefingSchema } from "@/lib/briefing-schema";
 import { computeProgress } from "@/lib/briefing-progress";
 import { BriefingView } from "@/components/briefing/BriefingView";
+import { TrendsPanel } from "@/components/briefing/TrendsPanel";
 import { StatusBadge } from "@/components/app/Badge";
 import {
-  ArrowLeft, Pencil, Copy, Check, ExternalLink, FileWarning,
-  CheckCircle2, Circle, Loader2, Sparkles,
+  ArrowLeft,
+  Pencil,
+  Copy,
+  Check,
+  ExternalLink,
+  FileWarning,
+  CheckCircle2,
+  Circle,
+  Loader2,
+  Sparkles,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/proyectos/$id")({
@@ -20,7 +29,9 @@ export const Route = createFileRoute("/_app/proyectos/$id")({
     const briefing = company ? await getBriefing({ data: { token: company.token } }) : null;
     return { project, company, briefing };
   },
-  errorComponent: ({ error }) => <div className="p-6 text-sm text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => (
+    <div className="p-6 text-sm text-destructive">{error.message}</div>
+  ),
   notFoundComponent: () => <div className="p-6 text-sm">Proyecto no encontrado.</div>,
   component: Page,
 });
@@ -32,7 +43,10 @@ function Page() {
 
   return (
     <div className="space-y-6 max-w-[1500px]">
-      <Link to="/proyectos" className="inline-flex items-center gap-2 text-[12.5px] text-muted-foreground hover:text-foreground">
+      <Link
+        to="/proyectos"
+        className="inline-flex items-center gap-2 text-[12.5px] text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="h-4 w-4" /> Proyecto: {project.name}
       </Link>
 
@@ -41,7 +55,11 @@ function Page() {
         <aside className="space-y-4">
           <div className="rounded-2xl border border-border bg-card shadow-soft p-5">
             <div className="flex items-center gap-3">
-              <div className={`h-12 w-12 rounded-xl bg-gradient-to-br ${project.accent} flex items-center justify-center text-white font-semibold`}>{project.initials}</div>
+              <div
+                className={`h-12 w-12 rounded-xl bg-gradient-to-br ${project.accent} flex items-center justify-center text-white font-semibold`}
+              >
+                {project.initials}
+              </div>
               <div className="min-w-0">
                 <div className="text-[14px] font-semibold truncate">{project.name}</div>
                 <StatusBadge status={project.status} />
@@ -56,7 +74,10 @@ function Page() {
                 ["Inicio", project.start],
                 ["Entrega", project.delivery],
               ].map(([k, v]) => (
-                <div key={k} className="flex justify-between gap-3 border-b border-border/70 pb-2 last:border-0">
+                <div
+                  key={k}
+                  className="flex justify-between gap-3 border-b border-border/70 pb-2 last:border-0"
+                >
                   <dt className="text-muted-foreground">{k}</dt>
                   <dd className="font-medium text-right truncate">{v}</dd>
                 </div>
@@ -74,14 +95,18 @@ function Page() {
                 <ExternalLink className="h-3.5 w-3.5 ml-1" />
               </a>
             )}
-            <button className={`${project.siteUrl ? "mt-2" : "mt-5"} w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border bg-surface-elevated text-[12.5px] font-medium hover:bg-muted`}>
+            <button
+              className={`${project.siteUrl ? "mt-2" : "mt-5"} w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-lg border border-border bg-surface-elevated text-[12.5px] font-medium hover:bg-muted`}
+            >
               <Pencil className="h-3.5 w-3.5" /> Editar proyecto
             </button>
           </div>
 
           {company && (
             <nav className="rounded-2xl border border-border bg-card p-2 shadow-soft">
-              <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Secciones del briefing</div>
+              <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Secciones del briefing
+              </div>
               {briefingSchema.map((s) => (
                 <a
                   href={`#${s.id}`}
@@ -92,6 +117,13 @@ function Page() {
                   {s.title}
                 </a>
               ))}
+              <a
+                href="#tendencias"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] text-rose-400/90 hover:bg-muted hover:text-rose-400 transition"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-current opacity-70" />
+                Tendencias
+              </a>
             </nav>
           )}
         </aside>
@@ -100,17 +132,26 @@ function Page() {
         <div className="space-y-5">
           {company ? (
             <>
-              <BriefingHeader token={company.token} submitted={briefing?.submitted ?? false} updatedAt={briefing?.updatedAt} />
+              <BriefingHeader
+                token={company.token}
+                submitted={briefing?.submitted ?? false}
+                updatedAt={briefing?.updatedAt}
+              />
               <BriefingView answers={answers} />
+              <TrendsPanel token={company.token} />
             </>
           ) : (
             <div className="rounded-2xl border border-border bg-card shadow-soft p-10 text-center">
               <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground">
                 <FileWarning className="h-6 w-6" />
               </div>
-              <h3 className="mt-4 text-[15px] font-semibold">Esta empresa no tiene briefing configurado</h3>
+              <h3 className="mt-4 text-[15px] font-semibold">
+                Esta empresa no tiene briefing configurado
+              </h3>
               <p className="mt-1.5 text-[12.5px] text-muted-foreground">
-                Agregá la empresa en <code className="text-foreground">src/lib/companies.ts</code> con su <code className="text-foreground">slug</code> = <code className="text-foreground">{project.id}</code>.
+                Agregá la empresa en <code className="text-foreground">src/lib/companies.ts</code>{" "}
+                con su <code className="text-foreground">slug</code> ={" "}
+                <code className="text-foreground">{project.id}</code>.
               </p>
             </div>
           )}
@@ -124,7 +165,9 @@ function Page() {
                 <Sparkles className="h-3.5 w-3.5 text-white" />
               </div>
               <h3 className="text-[14px] font-semibold">Análisis IA</h3>
-              <span className="ml-auto rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground">Próximamente</span>
+              <span className="ml-auto rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-accent-foreground">
+                Próximamente
+              </span>
             </div>
             <p className="mt-3 text-[12.5px] text-muted-foreground leading-relaxed">
               Cuando conectemos Claude, acá vas a ver el análisis automático del briefing:
@@ -137,9 +180,15 @@ function Page() {
             <div className="mt-4 flex items-center gap-5">
               <CircularProgress value={progress} />
               <div className="text-[12px] text-muted-foreground">
-                <div>{briefing?.submitted ? "Briefing enviado por el cliente" : `${progress}% completado`}</div>
+                <div>
+                  {briefing?.submitted
+                    ? "Briefing enviado por el cliente"
+                    : `${progress}% completado`}
+                </div>
                 {briefing?.updatedAt && (
-                  <div className="mt-1 text-[11px]">Última edición: {new Date(briefing.updatedAt).toLocaleString("es-AR")}</div>
+                  <div className="mt-1 text-[11px]">
+                    Última edición: {new Date(briefing.updatedAt).toLocaleString("es-AR")}
+                  </div>
                 )}
               </div>
             </div>
@@ -152,7 +201,15 @@ function Page() {
   );
 }
 
-function BriefingHeader({ token, submitted, updatedAt }: { token: string; submitted: boolean; updatedAt?: string }) {
+function BriefingHeader({
+  token,
+  submitted,
+  updatedAt,
+}: {
+  token: string;
+  submitted: boolean;
+  updatedAt?: string;
+}) {
   const [copied, setCopied] = useState(false);
   const copy = () => {
     navigator.clipboard.writeText(`${window.location.origin}/briefing/${token}`).then(() => {
@@ -169,11 +226,22 @@ function BriefingHeader({ token, submitted, updatedAt }: { token: string; submit
           {updatedAt && ` · actualizado ${new Date(updatedAt).toLocaleString("es-AR")}`}
         </p>
       </div>
-      <button onClick={copy} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-elevated px-3.5 py-2 text-[12.5px] font-medium hover:bg-muted">
-        {copied ? <Check className="h-3.5 w-3.5 text-success-foreground" /> : <Copy className="h-3.5 w-3.5" />}
+      <button
+        onClick={copy}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-elevated px-3.5 py-2 text-[12.5px] font-medium hover:bg-muted"
+      >
+        {copied ? (
+          <Check className="h-3.5 w-3.5 text-success-foreground" />
+        ) : (
+          <Copy className="h-3.5 w-3.5" />
+        )}
         {copied ? "Link copiado" : "Copiar link"}
       </button>
-      <Link to="/briefing/$token" params={{ token }} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-[12.5px] font-medium text-primary-foreground hover:opacity-90">
+      <Link
+        to="/briefing/$token"
+        params={{ token }}
+        className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-[12.5px] font-medium text-primary-foreground hover:opacity-90"
+      >
         Abrir / editar <ExternalLink className="h-3.5 w-3.5" />
       </Link>
     </div>
@@ -181,13 +249,24 @@ function BriefingHeader({ token, submitted, updatedAt }: { token: string; submit
 }
 
 function CircularProgress({ value }: { value: number }) {
-  const r = 30; const c = 2 * Math.PI * r;
+  const r = 30;
+  const c = 2 * Math.PI * r;
   const offset = c - (value / 100) * c;
   return (
     <div className="relative h-20 w-20">
       <svg viewBox="0 0 80 80" className="-rotate-90">
         <circle cx="40" cy="40" r={r} stroke="oklch(0.92 0.008 270)" strokeWidth="7" fill="none" />
-        <circle cx="40" cy="40" r={r} stroke="url(#pg)" strokeWidth="7" strokeLinecap="round" fill="none" strokeDasharray={c} strokeDashoffset={offset} />
+        <circle
+          cx="40"
+          cy="40"
+          r={r}
+          stroke="url(#pg)"
+          strokeWidth="7"
+          strokeLinecap="round"
+          fill="none"
+          strokeDasharray={c}
+          strokeDashoffset={offset}
+        />
         <defs>
           <linearGradient id="pg" x1="0" y1="0" x2="80" y2="80">
             <stop offset="0" stopColor="oklch(0.46 0.18 266)" />
@@ -195,7 +274,9 @@ function CircularProgress({ value }: { value: number }) {
           </linearGradient>
         </defs>
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center text-[15px] font-bold">{value}%</div>
+      <div className="absolute inset-0 flex items-center justify-center text-[15px] font-bold">
+        {value}%
+      </div>
     </div>
   );
 }
@@ -211,10 +292,19 @@ function RoadmapCard() {
               {r.status === "done" && <CheckCircle2 className="h-5 w-5 text-success-foreground" />}
               {r.status === "current" && <Loader2 className="h-5 w-5 text-primary animate-spin" />}
               {r.status === "todo" && <Circle className="h-5 w-5 text-muted-foreground/40" />}
-              {i < 6 && <div className={`w-px flex-1 my-1 ${r.status === "done" ? "bg-success-foreground/30" : "bg-border"}`} style={{ minHeight: 14 }} />}
+              {i < 6 && (
+                <div
+                  className={`w-px flex-1 my-1 ${r.status === "done" ? "bg-success-foreground/30" : "bg-border"}`}
+                  style={{ minHeight: 14 }}
+                />
+              )}
             </div>
             <div className="pb-2">
-              <div className={`text-[12.5px] font-medium ${r.status === "current" ? "text-primary" : ""}`}>{r.label}</div>
+              <div
+                className={`text-[12.5px] font-medium ${r.status === "current" ? "text-primary" : ""}`}
+              >
+                {r.label}
+              </div>
               <div className="text-[11px] text-muted-foreground">{r.date}</div>
             </div>
           </li>
