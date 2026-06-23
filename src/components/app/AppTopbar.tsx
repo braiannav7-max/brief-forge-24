@@ -1,7 +1,7 @@
 import { Bell, MessageCircle, ChevronDown, Search, Menu, Globe } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useLang } from "@/lib/i18n";
-import { useAuth } from "@/lib/auth/AuthContext";
+import { useAuth, displayName, initials } from "@/lib/auth/AuthContext";
 
 interface AppTopbarProps {
   title?: string;
@@ -65,16 +65,16 @@ export function AppTopbar({ title, onMenuClick }: AppTopbarProps) {
           <MessageCircle className="h-[18px] w-[18px]" />
         </button>
 
-          <div className="flex items-center gap-2 ml-1 rounded-xl hover:bg-muted px-2 py-1.5 cursor-pointer transition-colors">
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xs font-bold select-none shrink-0">
-              {user?.email ? user.email.substring(0, 2).toUpperCase() : "??"}
-            </div>
-            <div className="hidden md:block leading-tight">
-              <div className="text-[13px] font-semibold">{user?.email?.split("@")[0] ?? "Usuario"}</div>
-              <div className="text-[10.5px] text-muted-foreground">{t.topbar.administrator}</div>
-            </div>
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground hidden md:block" />
+        <div className="flex items-center gap-2 ml-1 rounded-xl hover:bg-muted px-2 py-1.5 cursor-pointer transition-colors">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xs font-bold select-none shrink-0">
+            {user ? initials(user) : "??"}
           </div>
+          <div className="hidden md:block leading-tight">
+            <div className="text-[13px] font-semibold">{displayName(user)}</div>
+            <div className="text-[10.5px] text-muted-foreground">{t.topbar.administrator}</div>
+          </div>
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground hidden md:block" />
+        </div>
       </div>
     </header>
   );

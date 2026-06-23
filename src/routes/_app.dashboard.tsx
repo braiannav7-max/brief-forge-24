@@ -11,6 +11,7 @@ import {
 } from "@/lib/mock-data";
 import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { useAuth, displayName, initials } from "@/lib/auth/AuthContext";
 import {
   Plus,
   Image as ImageIcon,
@@ -82,12 +83,13 @@ function Avatar({
 // ---------------- Centro: composer + stories + feed ----------------
 function Composer() {
   const { t } = useLang();
+  const { user } = useAuth();
   const f = t.feed;
   return (
     <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
       <div className="flex items-center gap-3">
         <Avatar
-          initials="BS"
+          initials={user ? initials(user) : "??"}
           size="h-10 w-10"
           text="text-[13px]"
           gradient="from-amber-400 to-orange-500"
@@ -297,18 +299,20 @@ function Post({ post }: { post: FeedPost }) {
 
 // ---------------- Rail izquierdo ----------------
 function ProfileCard() {
+  const { user } = useAuth();
+  const role = (user?.user_metadata?.role as string | undefined) === "admin" ? "Admin" : "Miembro";
   return (
     <div className="rounded-2xl border border-border bg-card shadow-soft overflow-hidden">
       <div className="h-16 bg-gradient-to-r from-primary to-lavender" />
       <div className="px-4 pb-4 -mt-7">
         <Avatar
-          initials="BS"
+          initials={user ? initials(user) : "??"}
           size="h-14 w-14 ring-4 ring-card"
           text="text-[17px]"
           gradient="from-amber-400 to-orange-500"
         />
-        <p className="mt-2 text-[14.5px] font-bold leading-tight">Braian Stortz</p>
-        <p className="text-[11.5px] text-muted-foreground">Desenvolvedor Web · Admin</p>
+        <p className="mt-2 text-[14.5px] font-bold leading-tight">{displayName(user)}</p>
+        <p className="text-[11.5px] text-muted-foreground">{user?.email ?? role}</p>
         <div className="mt-3 grid grid-cols-3 gap-1 text-center">
           {[
             { v: "6", l: "Proyectos" },

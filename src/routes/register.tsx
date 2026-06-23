@@ -10,6 +10,7 @@ export const Route = createFileRoute("/register")({
 function RegisterPage() {
   const { signUp, user, loading, authAvailable, authError } = useAuth();
   const router = useRouter();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +26,9 @@ function RegisterPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 text-center">
         <p className="text-muted-foreground text-[13px] max-w-sm">
-          {authError ?? "Auth no disponible."} — agregalas en tu <code className="bg-muted px-1.5 py-0.5 rounded text-[12px]">.env</code> y reiniciá el servidor.
+          {authError ?? "Auth no disponible."} — agregalas en tu{" "}
+          <code className="bg-muted px-1.5 py-0.5 rounded text-[12px]">.env</code> y reiniciá el
+          servidor.
         </p>
       </div>
     );
@@ -35,7 +38,7 @@ function RegisterPage() {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
-    const { error } = await signUp(email, password);
+    const { error } = await signUp(email, password, fullName);
     setSubmitting(false);
     if (error) {
       setError(error.message);
@@ -53,8 +56,8 @@ function RegisterPage() {
           </span>
           <h1 className="mt-4 text-[18px] font-bold tracking-tight">Cuenta creada</h1>
           <p className="mt-2 text-[13px] text-muted-foreground">
-            Revisá tu correo <strong>{email}</strong> para confirmar la cuenta.
-            Si no ves el email, revisá la carpeta de spam.
+            Revisá tu correo <strong>{email}</strong> para confirmar la cuenta. Si no ves el email,
+            revisá la carpeta de spam.
           </p>
           <Link
             to="/login"
@@ -84,6 +87,18 @@ function RegisterPage() {
           <form onSubmit={handleSubmit} className="mt-5 space-y-3">
             <div>
               <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Nombre completo"
+                autoComplete="name"
+                required
+                minLength={2}
+                className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-[13px] focus:border-primary/50 focus:outline-none"
+              />
+            </div>
+            <div>
+              <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -106,9 +121,7 @@ function RegisterPage() {
               />
             </div>
 
-            {error && (
-              <p className="text-[12px] text-red-400 text-center">{error}</p>
-            )}
+            {error && <p className="text-[12px] text-red-400 text-center">{error}</p>}
 
             <button
               type="submit"

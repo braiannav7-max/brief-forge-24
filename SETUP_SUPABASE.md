@@ -24,6 +24,18 @@ create table briefings (
 > No hace falta tocar Row Level Security: el servidor usa la **service-role key**,
 > que tiene acceso completo y nunca se expone al navegador.
 
+### 2b. Perfiles de usuario (registro)
+
+Para que al registrarse un usuario se cree su perfil con el nombre, ejecutá
+también el contenido de `supabase/migrations/0001_profiles.sql` en el
+**SQL Editor**. Crea la tabla `public.profiles` y un trigger
+`handle_new_user` que copia el `full_name` desde el registro de Auth.
+
+El nombre se pide en `/register` y queda en `user_metadata.full_name`, así
+que la UI (topbar, dashboard) ya muestra el nombre real aunque todavía no
+hayas corrido esta migración; la tabla `profiles` sirve para persistirlo y
+poder hacer joins/consultas desde el server.
+
 ### 3. Pegar las credenciales
 En **Project Settings → API** copiá:
 - **Project URL** → `SUPABASE_URL`

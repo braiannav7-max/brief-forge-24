@@ -1,10 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { User, Session, AuthError } from "@supabase/supabase-js";
 import { getBrowserClient } from "../supabase/client";
 
@@ -15,7 +9,11 @@ interface AuthContextValue {
   authAvailable: boolean;
   authError: string | null;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    fullName: string,
+  ) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -64,13 +62,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -82,10 +80,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, fullName: string) => {
     const supabase = getClient();
     if (!supabase) return { error: new Error("Auth no disponible") as unknown as AuthError };
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        // Queda en raw_user_meta_data; el trigger handle_new_user lo copia
+        // a la tabla public.profiles al crear el usuario.
+        data: { full_name: fullName.trim() },
+      },
+    });
     return { error };
   };
 
@@ -95,7 +101,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, authAvailable, authError, signIn, signUp, signOut }}>
+    <AuthContext.Provider
+      value={{ user, session, loading, authAvailable, authError, signIn, signUp, signOut }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -105,4 +113,20 @@ export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
   return ctx;
+}
+
+/** Nombre a mostrar: full_name del metadata, o el prefijo del email. */
+export function displayName(user: User | null): string {
+  const meta = (user?.user_metadata?.full_name as string | undefined)?.trim();
+  if (meta) return meta;
+  const email = user?.email;
+  return email ? email.split("@")[0] : "Usuario";
+}
+
+/** Iniciales (máx 2) derivadas del nombre a mostrar. */
+export function initials(user: User | null): string {
+  const name = displayName(user);
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase();
 }
